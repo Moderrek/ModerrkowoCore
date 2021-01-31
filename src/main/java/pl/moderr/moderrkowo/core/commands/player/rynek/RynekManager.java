@@ -26,18 +26,6 @@ public class RynekManager {
 
     private void Load() {
         rynekItems.clear();
-        /*ModerrkowoDatabase.getInstance().getRynek(new CallbackRynek() {
-            @Override
-            public void onDone(ArrayList<RynekItem> input) {
-                rynekItems = input;
-            }
-
-            @Override
-            public void onFail(Exception e) {
-
-            }
-        });*/
-        rynekItems.add(new RynekItem(Bukkit.getPlayer("MODERR").getUniqueId(), new ItemStack(Material.DIAMOND, 3), 3));
     }
 
 
