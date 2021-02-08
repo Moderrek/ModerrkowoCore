@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 
-public class AInvseeCommand implements CommandExecutor {
+public class InvseeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -20,7 +20,7 @@ public class AInvseeCommand implements CommandExecutor {
                 return false;
             }
             if (args.length == 0) {
-                p.sendMessage(ColorUtils.color("&cUzycie: /ainvsee <nick>"));
+                p.sendMessage(ColorUtils.color("&cUżycie: /ainvsee <nick>"));
                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 return false;
             } else {

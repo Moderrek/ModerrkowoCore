@@ -10,7 +10,7 @@ import pl.moderr.moderrkowo.core.Main;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
-public class ASetSpawnCommand implements CommandExecutor {
+public class SetSpawnCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

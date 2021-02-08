@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.commands.player;
+package pl.moderr.moderrkowo.core.commands.player.teleport;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

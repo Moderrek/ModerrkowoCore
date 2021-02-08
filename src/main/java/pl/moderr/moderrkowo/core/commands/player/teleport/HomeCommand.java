@@ -34,7 +34,7 @@ public class HomeCommand implements CommandExecutor {
                             public void onDone(Home home) {
                                 p.teleport(home.ToLocation());
                                 p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
-                                p.sendTitle(new Title("", ColorUtils.color("&aPomyślnie przeteleportowano")));
+                                p.sendTitle(new Title("", ColorUtils.color("&aPomyślnie prze teleportowano")));
                             }
 
                             @Override

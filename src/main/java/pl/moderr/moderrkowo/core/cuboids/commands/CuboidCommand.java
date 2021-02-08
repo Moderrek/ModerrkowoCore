@@ -16,7 +16,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.cuboids.ModerrCuboids;
+import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                 // Administrators
                 if (p.hasPermission("moderr.cuboids.admin")) {
                     if (args[0].equalsIgnoreCase("admin-give")) {
-                        p.getInventory().addItem(Objects.requireNonNull(ModerrCuboids.getCuboidItem(1)));
+                        p.getInventory().addItem(Objects.requireNonNull(CuboidsManager.getCuboidItem(1)));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                         p.sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &aOtrzymałeś działke!")));
                         return true;
@@ -55,7 +55,7 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                             ApplicableRegionSet set = regionManager.getApplicableRegions(BukkitAdapter.asBlockVector(p.getLocation()));
                             ProtectedRegion cuboid = null;
                             for (ProtectedRegion cub : set) {
-                                if (cub.getId().startsWith(ModerrCuboids.getCuboidNamePrefix().toLowerCase())) {
+                                if (cub.getId().startsWith(CuboidsManager.getCuboidNamePrefix().toLowerCase())) {
                                     cuboid = cub;
                                 }
                             }
@@ -97,7 +97,7 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                             ApplicableRegionSet set = regionManager.getApplicableRegions(BukkitAdapter.asBlockVector(p.getLocation()));
                             ProtectedRegion cuboid = null;
                             for (ProtectedRegion cub : set) {
-                                if (cub.getId().startsWith(ModerrCuboids.getCuboidNamePrefix().toLowerCase())) {
+                                if (cub.getId().startsWith(CuboidsManager.getCuboidNamePrefix().toLowerCase())) {
                                     cuboid = cub;
                                 }
                             }
@@ -137,13 +137,13 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                     ApplicableRegionSet set = regionManager.getApplicableRegions(BukkitAdapter.asBlockVector(p.getLocation()));
                     ProtectedRegion cub = null;
                     for (ProtectedRegion cuboid : set) {
-                        if (cuboid.getId().startsWith(ModerrCuboids.getCuboidNamePrefix().toLowerCase())) {
+                        if (cuboid.getId().startsWith(CuboidsManager.getCuboidNamePrefix().toLowerCase())) {
                             cub = cuboid;
                         }
                     }
                     if (cub != null) {
-                        p.sendMessage(ColorUtils.color("&3Informacje o działce &b" + cub.getId().replaceFirst(ModerrCuboids.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
-                        p.sendMessage(ColorUtils.color("&bWłaściciel &f" + cub.getId().replaceFirst(ModerrCuboids.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        p.sendMessage(ColorUtils.color("&3Informacje o działce &b" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        p.sendMessage(ColorUtils.color("&bWłaściciel &f" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
                         StringBuilder members = new StringBuilder();
                         for (String uuid : cub.getMembers().getPlayers()) {
                             members.append(" ").append(uuid);

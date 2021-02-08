@@ -16,9 +16,9 @@ import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
 import java.util.Objects;
 
-public class ModerrCuboids {
+public class CuboidsManager {
 
-    private static ModerrCuboids instance;
+    private static CuboidsManager instance;
     private static Material cuboidMaterial;
     private static String cuboidDisplayName;
 
@@ -32,7 +32,7 @@ public class ModerrCuboids {
             ModerrkowoLog.LogAdmin("Wczytano działki.");
         } catch (Exception e) {
             e.printStackTrace();
-            ModerrkowoLog.LogAdmin("Wystąpił bład przy tworzeniu działek!");
+            ModerrkowoLog.LogAdmin("Wystąpił błąd przy tworzeniu działek!");
         }
         NamespacedKey key = new NamespacedKey(Main.getInstance(), "dzialka");
         if (Bukkit.getRecipe(key) == null) {
@@ -71,9 +71,5 @@ public class ModerrCuboids {
         return "_cuboids_";
     }
 
-    @Contract(pure = true)
-    public static ModerrCuboids getInstance() {
-        return instance;
-    }
 
 }

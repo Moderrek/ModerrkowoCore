@@ -39,7 +39,7 @@ public class AHelpopCommand implements CommandExecutor {
                         return true;
                     } else {
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        p.sendMessage(ColorUtils.color("&cUzycie: &e/ahelpop <nick> &m<odpowiedź>"));
+                        p.sendMessage(ColorUtils.color("&cUżycie: &e/ahelpop <nick> &m<odpowiedź>"));
                         return false;
                     }
                 } else {
@@ -49,11 +49,11 @@ public class AHelpopCommand implements CommandExecutor {
                 }
             } else {
                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                p.sendMessage(ColorUtils.color("&cUzycie: &e/ahelpop <nick> <odpowiedź>"));
+                p.sendMessage(ColorUtils.color("&cUżycie: &e/ahelpop <nick> <odpowiedź>"));
                 return false;
             }
         } else {
-            sender.sendMessage("Nie jestes graczem!");
+            sender.sendMessage("Nie jesteś graczem!");
         }
         return false;
     }

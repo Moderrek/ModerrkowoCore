@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 
-public class AEnderseeCommand implements CommandExecutor {
+public class EnderseeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -20,15 +20,13 @@ public class AEnderseeCommand implements CommandExecutor {
                 return false;
             }
             if (args.length == 0) {
-                p.sendMessage(ColorUtils.color("&cUzycie: /aendersee <nick>"));
+                p.sendMessage(ColorUtils.color("&cUżycie: /aendersee <nick>"));
                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 return false;
             } else {
                 Player p2 = Bukkit.getPlayer(args[0]);
                 if (p2 != null) {
-                    //
                     p.openInventory(p2.getEnderChest());
-                    //
                     p.sendMessage(ColorUtils.color("&eOtworzono skrzynie kresu gracza &6" + p2.getName()));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                     Logger.logAdminLog(p.getName() + " otworzył skrzynie kresu gracza " + p2.getName());

@@ -12,7 +12,7 @@ import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import java.util.HashMap;
 
 public class MessageCommand implements CommandExecutor {
-    public static HashMap<Player, Player> lastMessageSender = new HashMap<>();
+    public final static HashMap<Player, Player> lastMessageSender = new HashMap<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {

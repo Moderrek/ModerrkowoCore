@@ -1,7 +1,9 @@
+#ServerName
 servername: "<gradient:#FD4F1D:#FCE045>Moderrkowo"
-spawnWorld: "world"
-spawnX: 0
-spawnY: 0
-spawnZ: 0
-spawnYaw: 0
-spawnPitch: 0
+#SpawnData
+SpawnWorld: "world"
+SpawnX: 0
+SpawnY: 0
+SpawnZ: 0
+SpawnYaw: 0
+SpawnPitch: 0

@@ -1,7 +1,6 @@
 package pl.moderr.moderrkowo.core.commands.player.teleport;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,7 +26,7 @@ public class TPACommand implements CommandExecutor {
         instance = this;
     }
 
-    public HashMap<UUID, UUID> tpaRequests = new HashMap<>();
+    public final HashMap<UUID, UUID> tpaRequests = new HashMap<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -43,20 +42,6 @@ public class TPACommand implements CommandExecutor {
                 if (to != null) {
                     if (p.getUniqueId().equals(to.getUniqueId())) {
                         p.sendMessage(ColorUtils.color("&cNie możesz się teleportować do siebie!"));
-                        p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        return false;
-                    }
-                    if (to.getWorld() != p.getWorld()) {
-                        p.sendMessage(ColorUtils.color("&cNie można się teleportować między światami!"));
-                        p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        return false;
-                    }
-                    Location first = to.getLocation();
-                    first.setY(0);
-                    Location second = p.getLocation();
-                    second.setY(0);
-                    if (first.distance(second) > 1500) {
-                        p.sendMessage(ColorUtils.color("&cMożna się tylko teleportować do 1500 kratek!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                         return false;
                     }

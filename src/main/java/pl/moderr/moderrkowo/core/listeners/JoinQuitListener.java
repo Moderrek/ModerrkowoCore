@@ -7,8 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.commands.admin.AVanishCommand;
-import pl.moderr.moderrkowo.core.utils.ChatUtil;
+import pl.moderr.moderrkowo.core.commands.admin.VanishCommand;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.HexResolver;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
@@ -37,7 +36,6 @@ public class JoinQuitListener implements Listener {
         for (Player players : Bukkit.getOnlinePlayers()) {
             updateTab(players);
         }
-        e.getPlayer().setPlayerListName(ChatUtil.getChatName(e.getPlayer()));
         int maxPlayer = Main.getInstance().dataConfig.getInt("MaxPlayer");
         if (maxPlayer < Bukkit.getOnlinePlayers().size()) {
             Main.getInstance().dataConfig.set("MaxPlayer", Bukkit.getOnlinePlayers().size());
@@ -45,7 +43,7 @@ public class JoinQuitListener implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             updateTab(player);
         }
-        for (UUID uuid : AVanishCommand.hidden) {
+        for (UUID uuid : VanishCommand.hidden) {
             Player hidden = Bukkit.getPlayer(uuid);
             if (p.isOp()) {
                 assert hidden != null;
@@ -62,7 +60,7 @@ public class JoinQuitListener implements Listener {
         int administracja = 0;
         int gracze = 0;
         for (Player admin : Bukkit.getOnlinePlayers()) {
-            if (AVanishCommand.hidden.contains(admin.getUniqueId())) {
+            if (VanishCommand.hidden.contains(admin.getUniqueId())) {
                 continue;
             }
             gracze++;
@@ -93,8 +91,8 @@ public class JoinQuitListener implements Listener {
         for (Player players : Bukkit.getOnlinePlayers()) {
             updateTab(players);
         }
-        if (AVanishCommand.hidden.contains(e.getPlayer().getUniqueId())) {
-            AVanishCommand.hidden.remove(e.getPlayer().getUniqueId());
+        if (VanishCommand.hidden.contains(e.getPlayer().getUniqueId())) {
+            VanishCommand.hidden.remove(e.getPlayer().getUniqueId());
             ModerrkowoLog.LogAdmin("Gracz " + e.getPlayer().getName() + " wyszedł z serwera i został pokazany");
         }
         e.setQuitMessage(JoinQuitListener.getQuitMessage(e.getPlayer()));

@@ -21,7 +21,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.cuboids.ModerrCuboids;
+import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class PlaceRemoveCuboid implements Listener {
 
     @EventHandler
     public void cuboidPlace(BlockPlaceEvent e) {
-        if (e.getItemInHand().isSimilar(ModerrCuboids.getCuboidItem(1))) {
+        if (e.getItemInHand().isSimilar(CuboidsManager.getCuboidItem(1))) {
             boolean canBuild = !e.isCancelled();
             BlockVector3 center = BukkitAdapter.asBlockVector(e.getBlockPlaced().getLocation());
             BlockVector3 minCheck = center.subtract(64 - 1, 0, 64 - 1);
@@ -43,8 +43,8 @@ public class PlaceRemoveCuboid implements Listener {
             ApplicableRegionSet protectedRegions;
             ApplicableRegionSet protectedRegionsCheck;
             assert regions != null;
-            if (regions.getRegion(ModerrCuboids.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase()) != null) {
-                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &cJuż masz jedną działke!"));
+            if (regions.getRegion(CuboidsManager.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase()) != null) {
+                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &cJuż masz jedną działkę!"));
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 e.setCancelled(true);
                 return;
@@ -68,18 +68,20 @@ public class PlaceRemoveCuboid implements Listener {
                 min = min.withY(0);
                 BlockVector3 max = center.add(64 - 1, 0, 64 - 1);
                 max = max.withY(255);
-                ProtectedRegion newCuboid = new ProtectedCuboidRegion(ModerrCuboids.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase(), min, max);
+                ProtectedRegion newCuboid = new ProtectedCuboidRegion(CuboidsManager.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase(), min, max);
                 newCuboid.getOwners().addPlayer(e.getPlayer().getUniqueId());
                 newCuboid.setFlag(Flags.GREET_MESSAGE,
-                        ColorUtils.color("&aWkroczyłeś na teren działki gracza &2" + newCuboid.getId().replace(ModerrCuboids.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        ColorUtils.color("&aWkroczyłeś na teren działki gracza &2" + newCuboid.getId().replace(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
                 newCuboid.setFlag(Flags.FAREWELL_MESSAGE,
-                        ColorUtils.color("&aOpuszczasz teren działki gracza &2" + newCuboid.getId().replace(ModerrCuboids.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        ColorUtils.color("&aOpuszczasz teren działki gracza &2" + newCuboid.getId().replace(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
                 newCuboid.setFlag(Flags.DENY_MESSAGE,
                         Main.getServerName() + ColorUtils.color(" &cNie masz uprawnień do interakcji na tej działce!"));
                 regions.addRegion(newCuboid);
-                e.getBlockPlaced().setMetadata("cuboid", new FixedMetadataValue(Main.getInstance(), true));
-                e.getBlockPlaced().setMetadata("cuboid-owner", new FixedMetadataValue(Main.getInstance(), e.getPlayer().getName()));
-                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &aPostawiłeś własną prywatną działke! Aby zarządzać nią wpisz &2/dzialka"));
+                e.getBlockPlaced().setMetadata("cuboid",
+                        new FixedMetadataValue(Main.getInstance(), true));
+                e.getBlockPlaced().setMetadata("cuboid-owner",
+                        new FixedMetadataValue(Main.getInstance(), e.getPlayer().getName()));
+                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &aPostawiłeś własną prywatną działkę! Aby zarządzać nią wpisz &2/dzialka"));
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
                 try {
                     regions.save();
@@ -101,13 +103,13 @@ public class PlaceRemoveCuboid implements Listener {
                 assert regions != null;
                 ApplicableRegionSet set = regions.getApplicableRegions(block);
                 for (ProtectedRegion cuboid : set.getRegions()) {
-                    if (cuboid.getId().startsWith(ModerrCuboids.getCuboidNamePrefix())) {
+                    if (cuboid.getId().startsWith(CuboidsManager.getCuboidNamePrefix())) {
                         regions.removeRegion(cuboid.getId());
-                        e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &aPomyślnie usunięto cuboida!")));
+                        e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &aPomyślnie usunięto działkę!")));
                         e.setCancelled(true);
                         e.getBlock().setType(Material.AIR);
                         if (!e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-                            e.getBlock().getLocation().getWorld().dropItemNaturally(e.getBlock().getLocation(), Objects.requireNonNull(ModerrCuboids.getCuboidItem(1)));
+                            e.getBlock().getLocation().getWorld().dropItemNaturally(e.getBlock().getLocation(), Objects.requireNonNull(CuboidsManager.getCuboidItem(1)));
                         }
                         e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                         e.getBlock().removeMetadata("cuboid", Main.getInstance());
@@ -120,7 +122,7 @@ public class PlaceRemoveCuboid implements Listener {
                     }
                 }
             } else {
-                e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &cNie jesteś włascicielem tego cuboida! (" + e.getBlock().getMetadata("cuboid-owner").get(0).asString() + ")")));
+                e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &cNie jesteś właścicielem tej działki! (" + e.getBlock().getMetadata("cuboid-owner").get(0).asString() + ")")));
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 e.getPlayer().spawnParticle(Particle.BARRIER, e.getBlock().getLocation().getX() + 0.5f, e.getBlock().getLocation().getY() + 1, e.getBlock().getLocation().getZ(), 1);
                 e.setCancelled(true);

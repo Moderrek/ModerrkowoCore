@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.commands.player;
+package pl.moderr.moderrkowo.core.commands.player.info;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

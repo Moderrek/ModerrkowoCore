@@ -2,21 +2,26 @@ package pl.moderr.moderrkowo.core.commands.player.pogoda;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
+import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PogodaCommand implements CommandExecutor, Listener {
+public class PogodaCommand implements CommandExecutor, Listener, TabCompleter {
 
 
     ArrayList<UUID> votedList = new ArrayList<>();
@@ -26,6 +31,37 @@ public class PogodaCommand implements CommandExecutor, Listener {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
+            if(p.isOp()){
+                if(args.length > 0){
+                    if(args[0].equalsIgnoreCase("clear")){
+                        World w = Bukkit.getWorld("world");
+                        assert w != null;
+                        w.setStorm(false);
+                        w.setThundering(false);
+                        p.sendMessage(ColorUtils.color("&aZmieniono pogodę na ładną"));
+                        ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7zmienił pogodę na ładną"));
+                        return false;
+                    }
+                    if(args[0].equalsIgnoreCase("rain")){
+                        World w = Bukkit.getWorld("world");
+                        assert w != null;
+                        w.setStorm(true);
+                        w.setThundering(false);
+                        p.sendMessage(ColorUtils.color("&aZmieniono pogodę na deszcz"));
+                        ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7zmienił pogodę na deszczową"));
+                        return false;
+                    }
+                    if(args[0].equalsIgnoreCase("thunder")){
+                        World w = Bukkit.getWorld("world");
+                        assert w != null;
+                        w.setStorm(true);
+                        w.setThundering(false);
+                        p.sendMessage(ColorUtils.color("&aZmieniono pogodę na burzę"));
+                        ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7zmienił pogodę na burzową"));
+                        return false;
+                    }
+                }
+            }
             if (Objects.requireNonNull(Bukkit.getWorld("world")).hasStorm()) {
                 if (votedList.contains(p.getUniqueId())) {
                     p.sendMessage(ColorUtils.color("&cJuż zagłosowałeś!"));
@@ -38,11 +74,11 @@ public class PogodaCommand implements CommandExecutor, Listener {
                         i = 1;
                     }
                     p.sendMessage(ColorUtils.color("&aZagłosowano pomyślnie! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
-                    Bukkit.broadcastMessage(ColorUtils.color("&6" + p.getName() + " &ezagłosował na zmiane pogody! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
+                    Bukkit.broadcastMessage(ColorUtils.color("&6" + p.getName() + " &ezagłosował na zmianę pogody! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                     if (votedList.size() >= i) {
                         Objects.requireNonNull(Bukkit.getWorld("world")).setStorm(false);
-                        Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &ePrzegłosowano na zmiane pogody! Pogoda została zmieniona."));
+                        Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &ePrzegłosowano na zmianę pogody! Pogoda została zmieniona."));
                         rain = false;
                         votedList = new ArrayList<>();
                     }
@@ -63,11 +99,22 @@ public class PogodaCommand implements CommandExecutor, Listener {
             return;
         }
         votedList = new ArrayList<>();
-        if (e.getWorld().hasStorm()) {
-            rain = true;
-            Bukkit.broadcastMessage(ColorUtils.color("&eRozpoczęto głosowanie na zmianę pogody! &f/pogoda &eaby zagłosować."));
-        } else {
-            rain = false;
+        //Bukkit.broadcastMessage(ColorUtils.color("&eRozpoczęto głosowanie na zmianę pogody! &f/pogoda &eaby zagłosować."));
+        rain = e.getWorld().hasStorm();
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if(sender instanceof Player){
+            if(sender.isOp()){
+                ArrayList<String> list = new ArrayList<>();
+                list.add("clear");
+                list.add("rain");
+                list.add("thunder");
+                return list;
+            }
         }
+        return null;
     }
 }

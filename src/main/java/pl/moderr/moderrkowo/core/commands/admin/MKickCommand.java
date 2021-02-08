@@ -10,7 +10,7 @@ import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
-public class AKickCommand implements CommandExecutor {
+public class MKickCommand implements CommandExecutor {
 
 
     @Override

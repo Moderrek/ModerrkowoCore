@@ -16,7 +16,7 @@ import pl.moderr.moderrkowo.core.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ASendAlertCommand implements CommandExecutor, TabExecutor {
+public class SendAlertCommand implements CommandExecutor, TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
@@ -24,7 +24,7 @@ public class ASendAlertCommand implements CommandExecutor, TabExecutor {
             if (p.isOp()) {
                 if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("alert")) {
-                        if (args.length > 2) {
+                        if (args.length > 1) {
                             String message = Logger.getMessage(args, 1, true);
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 all.sendMessage(" ");
@@ -43,7 +43,7 @@ public class ASendAlertCommand implements CommandExecutor, TabExecutor {
                         }
                     }
                     if (args[0].equalsIgnoreCase("wiadomosc")) {
-                        if (args.length > 2) {
+                        if (args.length > 1) {
                             String message = Logger.getMessage(args, 1, true);
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 all.sendMessage(" ");
@@ -62,7 +62,7 @@ public class ASendAlertCommand implements CommandExecutor, TabExecutor {
                         }
                     }
                     if (args[0].equalsIgnoreCase("title")) {
-                        if (args.length > 2) {
+                        if (args.length > 1) {
                             String message = Logger.getMessage(args, 1, true);
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 all.sendTitle(new Title("", ColorUtils.color(message)));
@@ -78,7 +78,7 @@ public class ASendAlertCommand implements CommandExecutor, TabExecutor {
                         }
                     }
                     if (args[0].equalsIgnoreCase("pilne")) {
-                        if (args.length > 2) {
+                        if (args.length > 1) {
                             String message = Logger.getMessage(args, 1, true);
                             for (Player all : Bukkit.getOnlinePlayers()) {
                                 all.sendTitle(new Title(ColorUtils.color("&c&lPILNE!"), ColorUtils.color("&ePatrz na chat")));
@@ -105,7 +105,7 @@ public class ASendAlertCommand implements CommandExecutor, TabExecutor {
                 }
             }
         } else {
-            sender.sendMessage("Nie jestes graczem!");
+            sender.sendMessage("Nie jesteś graczem!");
         }
         return false;
     }

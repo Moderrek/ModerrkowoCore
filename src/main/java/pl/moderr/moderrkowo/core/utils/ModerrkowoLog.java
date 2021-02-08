@@ -12,6 +12,7 @@ public class ModerrkowoLog {
                 p.sendMessage(output);
             }
         }
+        System.out.println(output);
     }
 
 }

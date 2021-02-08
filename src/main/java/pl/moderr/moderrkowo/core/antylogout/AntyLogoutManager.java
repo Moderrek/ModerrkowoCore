@@ -20,11 +20,11 @@ import pl.moderr.moderrkowo.core.utils.RandomUtils;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class ModerrAntyLogout implements Listener {
+public class AntyLogoutManager implements Listener {
 
-    HashMap<UUID, AntyLogoutItem> antyLogout = new HashMap<>();
+    private final HashMap<UUID, AntyLogoutItem> antyLogout = new HashMap<>();
 
-    public ModerrAntyLogout() {
+    public AntyLogoutManager() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), () -> {
             for (UUID uuid : antyLogout.keySet()) {
                 AntyLogoutItem nowy = antyLogout.get(uuid);
@@ -124,7 +124,7 @@ public class ModerrAntyLogout implements Listener {
         }
     }
 
-    int seconds = 10;
+    private final int seconds = 10;
 
     public void setAntyLogout(Player p) {
         AntyLogoutItem item = new AntyLogoutItem(p.getUniqueId(), seconds, Bukkit.createBossBar(ColorUtils.color("&aANTY LOGOUT"), BarColor.RED, BarStyle.SOLID));

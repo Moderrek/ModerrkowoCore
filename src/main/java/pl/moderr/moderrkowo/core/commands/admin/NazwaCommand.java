@@ -1,24 +1,28 @@
 package pl.moderr.moderrkowo.core.commands.admin;
 
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
-public class ANazwaCommand implements CommandExecutor {
+public class NazwaCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (args.length > 0) {
                 String itemName = Logger.getMessage(args, 0, true);
-                if (p.getActiveItem() != null) {
-                    p.getActiveItem().getItemMeta().setDisplayName(ColorUtils.color(itemName));
+                if (p.getInventory().getItemInMainHand().getType() != Material.AIR) {
+                    ItemMeta meta = p.getInventory().getItemInMainHand().getItemMeta();
+                    meta.setDisplayName(ColorUtils.color(itemName));
+                    p.getInventory().getItemInMainHand().setItemMeta(meta);
                     p.sendMessage(ColorUtils.color("&aPomyślnie zmieniono nazwę przedmiotu"));
                     ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7zmienił nazwę przedmiotu &8(&6" + ColorUtils.color(itemName) + "&8)"));
                 } else {

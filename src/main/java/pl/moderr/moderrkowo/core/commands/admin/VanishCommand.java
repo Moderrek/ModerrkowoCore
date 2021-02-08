@@ -14,9 +14,9 @@ import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class AVanishCommand implements CommandExecutor {
+public class VanishCommand implements CommandExecutor {
 
-    public static ArrayList<UUID> hidden = new ArrayList<>();
+    public final static ArrayList<UUID> hidden = new ArrayList<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {

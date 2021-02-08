@@ -25,7 +25,7 @@ import pl.moderr.moderrkowo.core.utils.RandomUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AVillagerCommand implements CommandExecutor, TabCompleter, Listener {
+public class VillagerCommand implements CommandExecutor, TabCompleter, Listener {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -38,7 +38,7 @@ public class AVillagerCommand implements CommandExecutor, TabCompleter, Listener
             e.setCustomName(ColorUtils.color(Logger.getMessage(args, 0, true)));
             e.setSilent(true);
             e.setRemoveWhenFarAway(false);
-            ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " postawił nowego Villager'a &8(&f" + Logger.getMessage(args, 0, true) + "&8)"));
+            ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7postawił nowego Villager'a &8(&f" + Logger.getMessage(args, 0, true) + "&8)"));
         }
         return false;
     }
@@ -70,11 +70,12 @@ public class AVillagerCommand implements CommandExecutor, TabCompleter, Listener
                     return;
                 }
 
+
                 if (entity.getCustomName().equals(ColorUtils.color("&aLosowy teleport"))) {
                     p.teleport(RandomUtils.getRandom(p.getWorld()));
                     p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                     p.sendMessage(ColorUtils.color("&aUżyłeś losowego teleportu u podróżnika"));
-                    p.sendTitle(new Title("", "" + ChatColor.GREEN + "x: " + p.getLocation().getBlockX() + " | z:" + p.getLocation().getBlockZ()));
+                    p.sendTitle(new Title("", "" + ChatColor.GREEN + "x: " + p.getLocation().getBlockX() + " z:" + p.getLocation().getBlockZ()));
                 }
             }
         }

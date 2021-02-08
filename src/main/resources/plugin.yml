@@ -3,7 +3,7 @@ version: 1.0
 main: pl.moderr.moderrkowo.core.Main
 api-version: 1.16
 authors: [ MODERR ]
-depend: [ ModerrkowoDB,WorldGuard ]
+softdepend: [ ModerrkowoDB, WorldGuard ]
 commands:
   alogi:
     permission: moderr.admin
@@ -15,6 +15,7 @@ commands:
     permission: moderr.player
   pogoda:
     permission: moderr.player
+    aliases: [weather]
   helpop:
     permission: moderr.player
   ahelpop:
@@ -22,9 +23,9 @@ commands:
   adminchat:
     permission: moderr.admin
     aliases: [ ac,achat ]
-  ainvsee:
+  invsee:
     permission: moderr.admin
-  asendalert:
+  sendalert:
     permission: moderr.admin
     aliases: [ awyslijwiadomosc ]
   msg:
@@ -34,40 +35,70 @@ commands:
     permission: moderr.player
     aliases: [ odpowiedz,r ]
   home:
+    description: Komenda do prze teleportowania się do domu
     permission: moderr.player
     aliases: [ dom ]
   sethome:
+    description: Komenda do ustawienia domu
     permission: moderr.player
     aliases: [ ustawdom ]
   dzialka:
+    description: Komenda do zarządzania działką
     permission: moderr.player
     aliases: [ cuboid ]
-  aclearchat:
+  chat:
+    description: Komenda do ustawien chatu
     permission: moderr.admin
   rynek:
-    permission: moderr.admin
+    description: Otwiera ekwipunek z rynkiem między graczami
+    permission: moderr.player
   say:
+    description: Komenda do mówienia jako Administracja
     permission: moderr.admin
   regulamin:
+    description: Pokazuje regulamin
     permission: moderr.player
   discord:
+    description: Komenda do zaproszenia na Discordzie
     permission: moderr.player
-  akick:
+  mkick:
+    description: Komenda do wyrzucenia gracza
     permission: moderr.admin
   craftingdzialki:
+    description: Komenda do pokazania craftingu dzialki
     permission: moderr.player
-  aendersee:
+  endersee:
+    description: Komenda do podejrzenia skrzyni kresu graczy
     permission: moderr.admin
   spawn:
+    description: Komenda do teleportacji na spawna
     permission: moderr.player
-  asetspawn:
+  setspawn:
+    description: Komenda do ustawiania spawna
     permission: moderr.admin
-  avanish:
+  vanish:
+    description: Komenda do ukrycia się przed graczami
     permission: moderr.admin
-  avillager:
+  villager:
+    description: Komenda do postawienia villagerów
     permission: moderr.admin
-  anazwa:
+  nazwa:
+    description: Komenda do ustawienia nazwy przedmiotui
     permission: moderr.admin
+  abank:
+    permission: moderr.admin
+  przelej:
+    permission: moderr.player
+  topka:
+    permission: moderr.player
+  mban:
+    permission: moderr.admin
+  gamemode:
+    permission: moderr.admin
+  fly:
+    permission: moderr.admin
+  sidebar:
+    permission: moderr.player
 permissions:
   moderr.admin:
     default: op
