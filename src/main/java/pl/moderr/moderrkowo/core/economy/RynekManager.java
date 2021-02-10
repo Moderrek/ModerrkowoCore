@@ -125,6 +125,11 @@ public class RynekManager implements Listener {
                     buyer.getPlayer().getLocation().getWorld().dropItem(buyer.getPlayer().getLocation(), item.item.clone());
                 }
                 rynekItems.remove(item);
+                for (Player players : Bukkit.getOnlinePlayers()) {
+                    if (players.getOpenInventory().getTitle().contains(RynekGui_WithoutPage)) {
+                        players.openInventory(getRynekInventory(Integer.parseInt(players.getOpenInventory().getTitle().replace(RynekGui_WithoutPage, "")), players));
+                    }
+                }
                 buyer.getPlayer().sendMessage(ColorUtils.color("&aPomyślnie zakupiono przedmiot z rynku od " + sellerU.getName()));
                 buyer.getPlayer().sendMessage(ColorUtils.color("&c- " + nf.format(item.cost) + " zł"));
                 buyer.getPlayer().playSound(buyer.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
@@ -142,12 +147,17 @@ public class RynekManager implements Listener {
                 @Override
                 public void onDone() {
                     buyer.getBank().money -= item.cost;
-                    if (check(Objects.requireNonNull(buyer.getPlayer()))) {
+                    if (!check(Objects.requireNonNull(buyer.getPlayer()))) {
                         buyer.getPlayer().getInventory().addItem(item.item.clone());
                     } else {
                         buyer.getPlayer().getLocation().getWorld().dropItem(buyer.getPlayer().getLocation(), item.item.clone());
                     }
                     rynekItems.remove(item);
+                    for (Player players : Bukkit.getOnlinePlayers()) {
+                        if (players.getOpenInventory().getTitle().contains(RynekGui_WithoutPage)) {
+                            players.openInventory(getRynekInventory(Integer.parseInt(players.getOpenInventory().getTitle().replace(RynekGui_WithoutPage, "")), players));
+                        }
+                    }
                     buyer.getPlayer().sendMessage(ColorUtils.color("&aPomyślnie zakupiono przedmiot z rynku od " + offlineSeller.getName()));
                     buyer.getPlayer().sendMessage(ColorUtils.color("&c- " + nf.format(item.cost) + " zł"));
                     buyer.getPlayer().playSound(buyer.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
@@ -280,6 +290,7 @@ public class RynekManager implements Listener {
             e.setCancelled(true);
             Player p = (Player) e.getWhoClicked();
             User u;
+
             try {
                 u = ModerrkowoDatabase.getInstance().getUserManager().getUser(p.getUniqueId());
             } catch (UserNotLoaded userNotLoaded) {
@@ -288,6 +299,7 @@ public class RynekManager implements Listener {
                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 return;
             }
+
             //<editor-fold> Page switcher
             String title = e.getView().getTitle().replace(RynekGui_WithoutPage, "");
             int page = Integer.parseInt(title);
@@ -305,7 +317,7 @@ public class RynekManager implements Listener {
             }
             //</editor-fold> Page switcher
 
-            // Buy items
+            //<editor-fold> Buy items
             RynekItem item = getItem(page, e.getSlot());
             if (item == null) {
                 return;
@@ -320,23 +332,18 @@ public class RynekManager implements Listener {
                 p.sendMessage(ColorUtils.color("&aPomyślnie zwrócono przedmiot z rynku."));
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     if (players.getOpenInventory().getTitle().contains(RynekGui_WithoutPage)) {
-                        players.openInventory(getRynekInventory(Integer.parseInt(players.getOpenInventory().getTitle().replace(RynekGui_WithoutPage, "")), p));
+                        players.openInventory(getRynekInventory(Integer.parseInt(players.getOpenInventory().getTitle().replace(RynekGui_WithoutPage, "")), players));
                     }
                 }
             } else {
                 if (u.getBank().money >= item.cost) {
                     buyItem(u, item);
-                    for (Player players : Bukkit.getOnlinePlayers()) {
-                        if (players.getOpenInventory().getTitle().contains(RynekGui_WithoutPage)) {
-                            players.openInventory(getRynekInventory(Integer.parseInt(players.getOpenInventory().getTitle().replace(RynekGui_WithoutPage, "")), p));
-                        }
-                    }
                 } else {
                     p.sendMessage(ColorUtils.color("&cNie posiadasz tyle pieniędzy!"));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 }
             }
-            // Buy items
+            //</editor-fold> Buy items
 
         }
     }

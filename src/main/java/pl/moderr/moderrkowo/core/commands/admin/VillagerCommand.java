@@ -2,7 +2,6 @@ package pl.moderr.moderrkowo.core.commands.admin;
 
 import com.destroystokyo.paper.Title;
 import org.bukkit.ChatColor;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,10 +16,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pl.moderr.moderrkowo.core.Main;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 import pl.moderr.moderrkowo.core.utils.RandomUtils;
+import pl.moderr.moderrkowo.core.villager.data.VillagerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,9 @@ public class VillagerCommand implements CommandExecutor, TabCompleter, Listener 
         ArrayList<String> list = new ArrayList<>();
         list.add("&aLosowy teleport");
         list.add("&c&lQ &7???");
+        for(VillagerData data : Main.getInstance().villagerManager.shops.values()){
+            list.add(data.getCommandSpawnName());
+        }
         return list;
     }
 
@@ -60,13 +64,6 @@ public class VillagerCommand implements CommandExecutor, TabCompleter, Listener 
         if (entity.getType() == EntityType.VILLAGER) {
             if (entity.isCustomNameVisible()) {
                 if (entity.getCustomName() == null) {
-                    return;
-                }
-
-                if (entity.getCustomName().contains(ColorUtils.color("&c&lQ"))) {
-                    p.sendMessage(ColorUtils.color("&cQuest'y są wyłączone!!!"));
-                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                    p.spawnParticle(Particle.BARRIER, entity.getLocation().add(0, 2.5f, 0), 1);
                     return;
                 }
 

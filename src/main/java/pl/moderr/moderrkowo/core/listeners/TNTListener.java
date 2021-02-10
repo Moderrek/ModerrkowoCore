@@ -18,7 +18,7 @@ import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TntListener implements Listener {
+public class TNTListener implements Listener {
 
     @EventHandler
     public void onExplode(EntityExplodeEvent e) {
@@ -85,7 +85,7 @@ public class TntListener implements Listener {
 
     public static List<Location> generateSphere(Location centerBlock, int radius, boolean hollow, Material Mat) {
 
-        List<Location> circleBlocks = new ArrayList<Location>();
+        List<Location> circleBlocks = new ArrayList<>();
 
         int bx = centerBlock.getBlockX();
         int by = centerBlock.getBlockY();
@@ -112,9 +112,9 @@ public class TntListener implements Listener {
         return circleBlocks;
     }
 
-    public static List<Location> replaceSphere(Location centerBlock, int radius, boolean hollow, Material from, Material to, int percent) {
+    public static void replaceSphere(Location centerBlock, int radius, boolean hollow, Material from, Material to, int percent) {
 
-        List<Location> circleBlocks = new ArrayList<Location>();
+        List<Location> circleBlocks = new ArrayList<>();
 
         int bx = centerBlock.getBlockX();
         int by = centerBlock.getBlockY();
@@ -143,7 +143,6 @@ public class TntListener implements Listener {
             }
         }
 
-        return circleBlocks;
     }
 
     public static List<Location> replaceSphereSolidBlocks(Location centerBlock, int radius, boolean hollow, Material to, int percent) {

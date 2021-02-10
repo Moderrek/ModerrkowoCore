@@ -52,6 +52,7 @@ commands:
   rynek:
     description: Otwiera ekwipunek z rynkiem między graczami
     permission: moderr.player
+    aliases: [ah]
   say:
     description: Komenda do mówienia jako Administracja
     permission: moderr.admin
@@ -99,6 +100,10 @@ commands:
     permission: moderr.admin
   sidebar:
     permission: moderr.player
+  drop:
+    permission: moderr.admin
+  unactiveallquest:
+    permission: moderr.admin
 permissions:
   moderr.admin:
     default: op

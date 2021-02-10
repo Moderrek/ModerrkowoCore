@@ -21,14 +21,16 @@ import pl.moderr.moderrkowo.core.commands.player.messages.ReplyCommand;
 import pl.moderr.moderrkowo.core.commands.player.pogoda.PogodaCommand;
 import pl.moderr.moderrkowo.core.commands.player.teleport.*;
 import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
+import pl.moderr.moderrkowo.core.custom.events.drop.DropEvent;
 import pl.moderr.moderrkowo.core.economy.*;
 import pl.moderr.moderrkowo.core.listeners.*;
-import pl.moderr.moderrkowo.core.quest.QuestManager;
 import pl.moderr.moderrkowo.core.utils.ChatUtil;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.HexResolver;
 import pl.moderr.moderrkowo.core.utils.Logger;
+import pl.moderr.moderrkowo.core.villager.data.*;
 import pl.moderr.moderrkowo.database.ModerrkowoDatabase;
+import pl.moderr.moderrkowo.database.data.PlayerVillagerData;
 import pl.moderr.moderrkowo.database.data.User;
 import pl.moderr.moderrkowo.database.exceptions.ConnectionIsNotOpenedException;
 import pl.moderr.moderrkowo.database.exceptions.ConnectionReconnectException;
@@ -48,10 +50,12 @@ public final class Main extends JavaPlugin {
     public CuboidsManager instanceCuboids;
     public AntyLogoutManager instanceAntyLogout;
     public RynekManager instanceRynekManager;
-    public QuestManager instanceQuestManager;
     public SprzedazManager instanceSprzedazManager;
+    public VillagerManager villagerManager;
 
     public DatabaseListener instanceDatabaseListener;
+
+    public DropEvent dropEvent;
 
     public File dataFile = new File(getDataFolder(), "data.yml");
     public FileConfiguration dataConfig;
@@ -88,9 +92,10 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new VillagerCommand(), this);
         Bukkit.getPluginManager().registerEvents(new PogodaCommand(), this);
         Bukkit.getPluginManager().registerEvents(new RespawnListener(), this);
-        Bukkit.getPluginManager().registerEvents(new TntListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TNTListener(), this);
         instanceAntyLogout = new AntyLogoutManager();
         Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
+        Bukkit.getPluginManager().registerEvents(new FishListener(), this);
         Logger.logPluginMessage("Wczytano listenery");
         //</editor-fold> Listeners
 
@@ -128,6 +133,8 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("gamemode")).setExecutor(new GameModeCommand());
         Objects.requireNonNull(getCommand("fly")).setExecutor(new FlyCommand());
         Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());
+        Objects.requireNonNull(getCommand("drop")).setExecutor(new DropCommand());
+        Objects.requireNonNull(getCommand("unactiveallquest")).setExecutor(new UnactiveAllQuest());
         Logger.logPluginMessage("Wczytano komendy");
         //</editor-fold> Commands
 
@@ -164,6 +171,8 @@ public final class Main extends JavaPlugin {
         message.add("&ePrzedmioty możesz sprzedawać pod &c/rynek wystaw <cena>");
         message.add("&ePrzedmioty do kupna znajdziesz pod &c/rynek");
         message.add("&eChcesz przelać pieniądze do przyjaciela? &c/przelej");
+        message.add("&eQuesty możesz znaleść na spawnie!");
+        message.add("&eŁowiąc możesz zarabiać, i zyskać rzadkie przedmioty!");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             String messageS = message.get(new Random().nextInt(message.size()));
             Bukkit.broadcastMessage(ColorUtils.color("&8[&b❄&8] " + messageS));
@@ -180,6 +189,12 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano rekord graczy");
         //</editor-fold> Data.yml
 
+        //<editor-fold> EventDrop
+        dropEvent = new DropEvent();
+        //</editor-fold> EventDrop
+
+       villagerManager = new VillagerManager();
+
         //<editor-fold> Scoreboard
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (User user : ModerrkowoDatabase.getInstance().getUserManager().getAllUsers()) {
@@ -194,36 +209,109 @@ public final class Main extends JavaPlugin {
                 Objective objective;
                 objective = scoreboard.registerNewObjective(user.getName(), "dummy", ColorUtils.color("&6&lModerrkowo"));
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                PlayerVillagerData data = null;
+                try{
+                    for(PlayerVillagerData villagers : user.getVillagersData().getVillagersData().values()){
+                        if(villagers.isActiveQuest()){
+                            data = villagers;
+                            break;
+                        }
+                    }
+                }catch(Exception ignored){
+
+                }
                 Score score1 = objective.getScore(" ");
                 Score score2 = objective.getScore(ColorUtils.color("&e" + ChatUtil.getPrefix(Objects.requireNonNull(user.getPlayer()))));
-                Score score3 = objective.getScore(ColorUtils.color("&fPoziom: &a" + user.getLevel()));
-                Score score4 = objective.getScore(ColorUtils.color("&fPortfel: &6" + ChatUtil.getMoney(user.getBank().money)));
-                Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &abrak"));
-                Score score6 = objective.getScore(ColorUtils.color("&fCzas gry: &a" + getTicksToTime(user.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE))));
-                Score score7 = objective.getScore("  ");
-                score1.setScore(-1);
-                score2.setScore(-2);
-                score3.setScore(-3);
-                score4.setScore(-4);
-                score5.setScore(-5);
-                score6.setScore(-6);
-                score7.setScore(-7);
-                //score6.setScore(-6);
+                Score score3 = objective.getScore(ColorUtils.color("&fPortfel: &6" + ChatUtil.getMoney(user.getBank().money)));
+                Score score4 = objective.getScore(ColorUtils.color("&fCzas gry: &a" + getTicksToTime(user.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE))));
+                if(data == null) {
+                    Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &abrak"));
+                    Score score6 = objective.getScore("  ");
+                    score1.setScore(-1);
+                    score2.setScore(-2);
+                    score3.setScore(-3);
+                    score4.setScore(-4);
+                    score5.setScore(-5);
+                    score6.setScore(-6);
+                }
+                else{
+                    Quest q = villagerManager.shops.get(data.getVillagerId()).getQuests().get(data.getQuestIndex());
+                    Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &a" + q.getName()));
+                    int itemI = 0;
+                    int last = 0;
+                    for(int i = -6; i != -6-villagerManager.shops.get(data.getVillagerId()).getQuests().get(data.getQuestIndex()).getQuestItems().size(); i--){
+                        try{
+                            IQuestItem iQuestItem = q.getQuestItems().get(itemI);
+                            if(iQuestItem instanceof IQuestItemGive){
+                                IQuestItemGive item = (IQuestItemGive) iQuestItem;
+                                int temp = data.getQuestItemData().get(item.getQuestItemDataId());
+                                Score tempScore;
+                                if(temp >= item.getCount()){
+                                    tempScore = objective.getScore(ColorUtils.color("&a✔ " + item.getQuestItemPrefix() + " " + item.getCount() + " " + ChatUtil.materialName(item.getMaterial())));
+                                }else{
+                                    int count = item.getCount()-temp;
+                                    if(count > item.getCount()){
+                                        count = item.getCount();
+                                    }
+                                    tempScore = objective.getScore(ColorUtils.color("&c✘ " + item.getQuestItemPrefix() + " " + count + " " + ChatUtil.materialName(item.getMaterial())));
+                                }
+                                tempScore.setScore(i);
+                            }
+                            if(iQuestItem instanceof IQuestItemCraft){
+                                IQuestItemCraft item = (IQuestItemCraft) iQuestItem;
+                                int temp = data.getQuestItemData().get(item.getQuestItemDataId());
+                                Score tempScore;
+                                if(temp >= item.getCount()){
+                                    tempScore = objective.getScore(ColorUtils.color("&a✔ " + item.getQuestItemPrefix() + " " + item.getCount() + " " + ChatUtil.materialName(item.getMaterial())));
+                                }else{
+                                    int count = item.getCount()-temp;
+                                    if(count > item.getCount()){
+                                        count = item.getCount();
+                                    }
+                                    tempScore = objective.getScore(ColorUtils.color("&c✘ " + item.getQuestItemPrefix() + " " + count + " " + ChatUtil.materialName(item.getMaterial())));
+                                }
+                                tempScore.setScore(i);
+                            }
+                            if(iQuestItem instanceof IQuestItemKill){
+                                IQuestItemKill item = (IQuestItemKill) iQuestItem;
+                                int temp = data.getQuestItemData().get(item.getQuestItemDataId());
+                                Score tempScore;
+                                if(temp >= item.getCount()){
+                                    tempScore = objective.getScore(ColorUtils.color("&a✔ " + item.getQuestItemPrefix() + " " + item.getCount() + " " + ChatUtil.materialName(item.getEntityType())));
+                                }else{
+                                    int count = item.getCount()-temp;
+                                    if(count > item.getCount()){
+                                        count = item.getCount();
+                                    }
+                                    tempScore = objective.getScore(ColorUtils.color("&c✘ " + item.getQuestItemPrefix() + " " + count + " " + ChatUtil.materialName(item.getEntityType())));
+                                }
+                                tempScore.setScore(i);
+                            }
+                            itemI++;
+                            last = i;
+                        }catch(Exception exception){
+                            exception.printStackTrace();
+                        }
+                    }
+                    Score score6 = objective.getScore("  ");
+                    score1.setScore(-1);
+                    score2.setScore(-2);
+                    score3.setScore(-3);
+                    score4.setScore(-4);
+                    score5.setScore(-5);
+                    score6.setScore(last-1);
+                }
                 user.getPlayer().setScoreboard(scoreboard);
             }
         }, 0, 20 * 10);
         Logger.logPluginMessage("Wczytano scoreboard'y");
         //</editor-fold> Scoreboard
 
-        //<editor-fold> Quest
-        instanceQuestManager = new QuestManager();
-        Logger.logPluginMessage("Wczytano questy");
-        //</editor-fold> Quest
-
         //<editor-fold> Sprzedaz
         instanceSprzedazManager = new SprzedazManager();
         Logger.logPluginMessage("Wczytano sprzedaż");
         //</editor-fold> Sprzedaz
+
 
         //<editor-fold> Rynek
         instanceRynekManager = new RynekManager();
@@ -238,11 +326,19 @@ public final class Main extends JavaPlugin {
 
     @Contract(pure = true)
     public @NotNull String getTicksToTime(int minutes){
-        if(minutes > 20*60*60){
-            DecimalFormat df2 = new DecimalFormat("#.##");
-            return (df2.format((double)minutes/20/60/60))+" godz.";
+        if(minutes > 20*60){
+            if(minutes > 20*60*60){
+                DecimalFormat df2 = new DecimalFormat("#.##");
+                if(minutes > 20*60*60*24){
+                    return (df2.format((double)minutes/20/60/60/24))+" dni";
+                }else{
+                    return (df2.format((double)minutes/20/60/60))+" godz.";
+                }
+            }else{
+                return (minutes/20/60) + " min";
+            }
         }else{
-            return (minutes/20/60) + " min";
+            return (minutes/20) + " sek.";
         }
     }
 

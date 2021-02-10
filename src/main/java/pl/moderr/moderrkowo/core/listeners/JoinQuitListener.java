@@ -33,6 +33,8 @@ public class JoinQuitListener implements Listener {
         p.sendMessage(ColorUtils.color("&6> &7Granie na serwerze oznacza akceptację regulaminu &c/regulamin"));
         p.sendMessage(ColorUtils.color("&6> &cModerrkowo &7to gwarancja satysfakcji zabawy i bezpieczeństwa!"));
         p.sendMessage(" ");
+        p.sendMessage(ColorUtils.color("&cNie dawno dodaliśmy QUESTY, jednym z takowych jest RYBAK na SPAWNIE! /spawn"));
+        p.sendMessage(" ");
         for (Player players : Bukkit.getOnlinePlayers()) {
             updateTab(players);
         }

@@ -1,6 +1,9 @@
 package pl.moderr.moderrkowo.core.utils;
 
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import pl.moderr.moderrkowo.database.ModerrkowoDatabase;
 import pl.moderr.moderrkowo.database.data.User;
@@ -16,6 +19,19 @@ public class ChatUtil {
         for (int i = 0; i < 100; i++) {
             player.sendMessage(" ");
         }
+    }
+
+    public static String materialName(Material material) {
+        String materialName = material.toString();
+        materialName = materialName.replaceAll("_", " ");
+        materialName = materialName.toLowerCase();
+        return WordUtils.capitalizeFully(materialName);
+    }
+    public static String materialName(EntityType material) {
+        String materialName = material.toString();
+        materialName = materialName.replaceAll("_", " ");
+        materialName = materialName.toLowerCase();
+        return WordUtils.capitalizeFully(materialName);
     }
 
     /**

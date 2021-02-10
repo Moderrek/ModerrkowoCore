@@ -39,7 +39,7 @@ public class PlayerDeathListener implements Listener {
             e.setDeathMessage(ColorUtils.color("&6" + e.getEntity().getName() + " &7utonął"));
             return;
         } else if (e.getDeathMessage().contains("blew up")) {
-            e.setDeathMessage(ColorUtils.color("&6" + e.getEntity().getName() + " 7ezostał wysadzony"));
+            e.setDeathMessage(ColorUtils.color("&6" + e.getEntity().getName() + " &7został wysadzony"));
             return;
         } else if (e.getDeathMessage().contains("was killed by")) {
             e.setDeathMessage(ColorUtils.color("&6" + e.getEntity().getName() + " &7został zabity"));
