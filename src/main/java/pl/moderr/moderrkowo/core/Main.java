@@ -1,26 +1,27 @@
 package pl.moderr.moderrkowo.core;
 
+import com.sk89q.worldguard.WorldGuard;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import pl.moderr.moderrkowo.core.antylogout.AntyLogoutManager;
+import pl.moderr.moderrkowo.core.commands.user.information.*;
+import pl.moderr.moderrkowo.core.custom.PaySign;
+import pl.moderr.moderrkowo.core.custom.antylogout.AntyLogoutManager;
 import pl.moderr.moderrkowo.core.commands.admin.*;
-import pl.moderr.moderrkowo.core.commands.player.SidebarCommand;
-import pl.moderr.moderrkowo.core.commands.player.info.CraftingDzialkaCommand;
-import pl.moderr.moderrkowo.core.commands.player.info.DiscordCommand;
-import pl.moderr.moderrkowo.core.commands.player.info.RegulaminCommand;
-import pl.moderr.moderrkowo.core.commands.player.messages.HelpopCommand;
-import pl.moderr.moderrkowo.core.commands.player.messages.MessageCommand;
-import pl.moderr.moderrkowo.core.commands.player.messages.ReplyCommand;
-import pl.moderr.moderrkowo.core.commands.player.pogoda.PogodaCommand;
-import pl.moderr.moderrkowo.core.commands.player.teleport.*;
+import pl.moderr.moderrkowo.core.commands.user.messages.HelpopCommand;
+import pl.moderr.moderrkowo.core.commands.user.messages.MessageCommand;
+import pl.moderr.moderrkowo.core.commands.user.messages.ReplyCommand;
+import pl.moderr.moderrkowo.core.commands.user.weather.PogodaCommand;
+import pl.moderr.moderrkowo.core.commands.user.teleportation.*;
 import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
+import pl.moderr.moderrkowo.core.custom.enchantments.HammerEnchantment;
 import pl.moderr.moderrkowo.core.custom.events.drop.DropEvent;
 import pl.moderr.moderrkowo.core.economy.*;
 import pl.moderr.moderrkowo.core.listeners.*;
@@ -28,7 +29,8 @@ import pl.moderr.moderrkowo.core.utils.ChatUtil;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.HexResolver;
 import pl.moderr.moderrkowo.core.utils.Logger;
-import pl.moderr.moderrkowo.core.villager.data.*;
+import pl.moderr.moderrkowo.core.custom.villagers.VillagerManager;
+import pl.moderr.moderrkowo.core.custom.villagers.data.*;
 import pl.moderr.moderrkowo.database.ModerrkowoDatabase;
 import pl.moderr.moderrkowo.database.data.PlayerVillagerData;
 import pl.moderr.moderrkowo.database.data.User;
@@ -37,9 +39,11 @@ import pl.moderr.moderrkowo.database.exceptions.ConnectionReconnectException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 
@@ -56,6 +60,8 @@ public final class Main extends JavaPlugin {
     public DatabaseListener instanceDatabaseListener;
 
     public DropEvent dropEvent;
+
+    public HammerEnchantment hammerEnch = null;
 
     public File dataFile = new File(getDataFolder(), "data.yml");
     public FileConfiguration dataConfig;
@@ -77,6 +83,11 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano config");
         //</editor-fold> Config
 
+        hammerEnch = new HammerEnchantment();
+        Bukkit.getPluginManager().registerEvents(hammerEnch, this);
+        loadEnchantments(hammerEnch);
+        Logger.logPluginMessage("Załadowano Szeroki Trzon");
+
         //<editor-fold> Listeners
         try {
             instanceDatabaseListener = new DatabaseListener();
@@ -96,6 +107,7 @@ public final class Main extends JavaPlugin {
         instanceAntyLogout = new AntyLogoutManager();
         Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
         Bukkit.getPluginManager().registerEvents(new FishListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PaySign(), this);
         Logger.logPluginMessage("Wczytano listenery");
         //</editor-fold> Listeners
 
@@ -135,47 +147,51 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("sidebar")).setExecutor(new SidebarCommand());
         Objects.requireNonNull(getCommand("drop")).setExecutor(new DropCommand());
         Objects.requireNonNull(getCommand("unactiveallquest")).setExecutor(new UnactiveAllQuest());
+        Objects.requireNonNull(getCommand("zmiany")).setExecutor(new ZmianyCommand());
+        getCommand("aquest").setExecutor(new QuestCommand());
         Logger.logPluginMessage("Wczytano komendy");
         //</editor-fold> Commands
 
-        //<editor-fold> Cuboids
-        instanceCuboids = new CuboidsManager();
-        instanceCuboids.Start();
-        Logger.logPluginMessage("Wczytano działki");
-        //</editor-fold> Cuboids
-
         //<editor-fold> AutoMessage
         ArrayList<String> message = new ArrayList<>();
-        message.add("&eJeżeli chcesz aby zmienić pogodę na ładną użyj &c/pogoda!");
-        message.add("&eTwój przyjaciel jest daleko? Użyjcie &c/tpa");
-        message.add("&eWidzisz buga? Prosimy zgłoś go na &c/helpop");
-        message.add("&eJeżeli chcesz napisać do kogoś prywatną wiadomość użyj &c/msg!");
-        message.add("&eAby szybko komuś odpisać na prywatną wiadomość użyj &c/r");
-        message.add("&eTwoje miejsce śmierci zawsze będzie napisane na chacie!");
-        message.add("&ePotrzebujesz działki? &cMusisz ją wytworzyć /craftingdzialki");
-        message.add("&ePortal endu jest wyłączony!");
-        message.add("&ePo uderzeniu moba/gracza wyświetla się ilośc zadanych serc");
-        message.add("&eNa naszym serwerze możesz sobie ustawić dom! &c/ustawdom");
-        message.add("&eAby prze teleportować się do domu użyj &c/dom");
-        message.add("&eJeżeli chcesz wesprzeć nasz serwer wejdź na &chttps://moderr.pl/dotacja");
-        message.add("&eJeżeli chcesz wbić na naszego Discord'a &c/discord");
-        message.add("&eNie jesteś zapoznany z regulaminem? &c/regulamin");
-        message.add("&eGdy jesteś podczas walki nie możesz się wylogować!");
-        message.add("&eGodziny walki trwają od &c18-8");
-        message.add("&eAby prze teleportować się na spawna wpisz &c/spawn");
-        message.add("&eNa spawnie możesz znaleźć wieśniaków z zadaniami &c/spawn");
-        message.add("&cZaklęcie naprawy jest wyłączone na serwerze!");
-        message.add("&ePortal do kresu jest tymczasowo zamknięty. Będzie otwarty pod koniec 1 edycji");
-        message.add("&ePodczas walki nie możesz się wylogować!");
-        message.add("&eAby zarobić wykonuj zadania i wystawiaj przedmioty na rynku");
-        message.add("&ePrzedmioty możesz sprzedawać pod &c/rynek wystaw <cena>");
-        message.add("&ePrzedmioty do kupna znajdziesz pod &c/rynek");
-        message.add("&eChcesz przelać pieniądze do przyjaciela? &c/przelej");
-        message.add("&eQuesty możesz znaleść na spawnie!");
-        message.add("&eŁowiąc możesz zarabiać, i zyskać rzadkie przedmioty!");
+        message.add("&7Jeżeli chcesz aby zmienić pogodę na ładną użyj &c/pogoda!");
+        message.add("&7Twój przyjaciel jest daleko? Użyjcie &c/tpa");
+        message.add("&7Widzisz buga? Prosimy zgłoś go na &c/helpop");
+        message.add("&7Jeżeli chcesz napisać do kogoś prywatną wiadomość użyj &c/msg!");
+        message.add("&7Aby szybko komuś odpisać na prywatną wiadomość użyj &c/r");
+        message.add("&7Twoje miejsce śmierci zawsze będzie napisane na chacie!");
+        message.add("&7Potrzebujesz działki? Musisz ją wytworzyć &c/craftingdzialki");
+        message.add("&7Portal endu jest wyłączony!");
+        message.add("&7Po uderzeniu moba/gracza wyświetla się ilośc zadanych serc");
+        message.add("&7Na naszym serwerze możesz sobie ustawić dom! &c/ustawdom");
+        message.add("&7Aby prze teleportować się do domu użyj &c/dom");
+        message.add("&7Jeżeli chcesz wesprzeć nasz serwer wejdź na &chttps://moderr.pl/dotacja");
+        message.add("&7Jeżeli chcesz wbić na naszego Discord'a &c/discord");
+        message.add("&7Nie jesteś zapoznany z regulaminem? &c/regulamin");
+        message.add("&7Gdy jesteś podczas walki nie możesz się wylogować!");
+        message.add("&7Godziny walki trwają od &c18-8");
+        message.add("&7Aby prze teleportować się na spawna wpisz &c/spawn");
+        message.add("&7Na spawnie możesz znaleźć wieśniaków z zadaniami &c/spawn");
+        message.add("&7Zaklęcie naprawy jest wyłączone na serwerze!");
+        message.add("&7Portal do kresu jest tymczasowo zamknięty. Będzie otwarty pod koniec 1 edycji");
+        message.add("&7Podczas walki nie możesz się wylogować!");
+        message.add("&7Aby zarobić wykonuj zadania i wystawiaj przedmioty na rynku");
+        message.add("&7Przedmioty możesz sprzedawać pod &c/rynek wystaw <cena>");
+        message.add("&7Przedmioty do kupna znajdziesz pod &c/rynek");
+        message.add("&7Chcesz przelać pieniądze do przyjaciela? &c/przelej");
+        message.add("&7Questy możesz znaleźć na spawnie!");
+        message.add("&7Łowiąc możesz zarabiać, i zyskać rzadkie przedmioty!");
+        message.add("&7TNT nie można wytworzyć, można je tylko zdobyć w zadaniu");
+        message.add("&7Jeżeli masz działkę użyj &c/dzialka");
+        message.add("&7Chcesz zarobić? Rób zadania i wystawiaj na &c/rynek");
+        message.add("&7Chcesz kogoś zgłosić &c/helpop");
+        message.add("&7Średnio co godzinę na losowych koordynatach pojawia się zrzut!");
+        message.add("&7Robiąc zadania możesz zdobywać złotówki.");
+        message.add("&7Aby zobaczyć zmiany wpisz &c/zmiany");
+        message.add("&7Aby zmienić pogodę na ładną wpisz &c/pogoda");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             String messageS = message.get(new Random().nextInt(message.size()));
-            Bukkit.broadcastMessage(ColorUtils.color("&8[&b❄&8] " + messageS));
+            Bukkit.broadcastMessage(ColorUtils.color("&8[&6❄&8] " + messageS));
         }, 0, 20 * 60 * 2);
         Logger.logPluginMessage("Wczytano AutoMessage");
         //</editor-fold> AutoMessage
@@ -188,6 +204,12 @@ public final class Main extends JavaPlugin {
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
         Logger.logPluginMessage("Wczytano rekord graczy");
         //</editor-fold> Data.yml
+
+        //<editor-fold> Cuboids
+        instanceCuboids = new CuboidsManager();
+        instanceCuboids.Start();
+        Logger.logPluginMessage("Wczytano działki");
+        //</editor-fold> Cuboids
 
         //<editor-fold> EventDrop
         dropEvent = new DropEvent();
@@ -235,11 +257,23 @@ public final class Main extends JavaPlugin {
                     score6.setScore(-6);
                 }
                 else{
-                    Quest q = villagerManager.shops.get(data.getVillagerId()).getQuests().get(data.getQuestIndex());
+                    if(!villagerManager.villagers.containsKey(data.getVillagerId())){
+                        Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &abrak"));
+                        Score score6 = objective.getScore("  ");
+                        score1.setScore(-1);
+                        score2.setScore(-2);
+                        score3.setScore(-3);
+                        score4.setScore(-4);
+                        score5.setScore(-5);
+                        score6.setScore(-6);
+                        user.getPlayer().setScoreboard(scoreboard);
+                        continue;
+                    }
+                    Quest q = villagerManager.villagers.get(data.getVillagerId()).getQuests().get(data.getQuestIndex());
                     Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &a" + q.getName()));
                     int itemI = 0;
                     int last = 0;
-                    for(int i = -6; i != -6-villagerManager.shops.get(data.getVillagerId()).getQuests().get(data.getQuestIndex()).getQuestItems().size(); i--){
+                    for(int i = -6; i != -6-villagerManager.villagers.get(data.getVillagerId()).getQuests().get(data.getQuestIndex()).getQuestItems().size(); i--){
                         try{
                             IQuestItem iQuestItem = q.getQuestItems().get(itemI);
                             if(iQuestItem instanceof IQuestItemGive){
@@ -290,6 +324,7 @@ public final class Main extends JavaPlugin {
                             itemI++;
                             last = i;
                         }catch(Exception exception){
+                            System.out.println("Exception  >> " + user.getName());
                             exception.printStackTrace();
                         }
                     }
@@ -312,7 +347,6 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano sprzedaż");
         //</editor-fold> Sprzedaz
 
-
         //<editor-fold> Rynek
         instanceRynekManager = new RynekManager();
         Bukkit.getPluginManager().registerEvents(instanceRynekManager, this);
@@ -322,6 +356,24 @@ public final class Main extends JavaPlugin {
 
         Logger.logPluginMessage("Wczytano plugin [CORE] w &8(&a" + (System.currentTimeMillis() - start) + "ms&8)");
         // END
+    }
+
+    public static void loadEnchantments(Enchantment enchantment) {
+        boolean registered = true;
+        try {
+            Field f = Enchantment.class.getDeclaredField("acceptingNew");
+            f.setAccessible(true);
+            f.set(null, true);
+            Enchantment.registerEnchantment(enchantment);
+        } catch (Exception e) {
+            registered = false;
+            e.printStackTrace();
+        }
+        if (registered) {
+            Logger.logPluginMessage("Zarejestrowano " + enchantment.getName());
+        }else{
+            Logger.logPluginMessage("Wystąpił bład przy rejestrowaniu " + enchantment.getName());
+        }
     }
 
     @Contract(pure = true)
@@ -350,6 +402,25 @@ public final class Main extends JavaPlugin {
             Logger.logAdminLog("Zapisano data.yml");
         } catch (IOException e) {
             Logger.logAdminLog("Wystąpił błąd podczas zapisywania data.yml");
+        }
+        try {
+            Field byIdField = Enchantment.class.getDeclaredField("byKey");
+            Field byNameField = Enchantment.class.getDeclaredField("byName");
+
+            byIdField.setAccessible(true);
+            byNameField.setAccessible(true);
+
+            HashMap<Integer, Enchantment> byId = (HashMap<Integer, Enchantment>) byIdField.get(null);
+            HashMap<Integer, Enchantment> byName = (HashMap<Integer, Enchantment>) byNameField.get(null);
+
+            if (byId.containsKey(hammerEnch.getKey())) {
+                byId.remove(hammerEnch.getKey());
+            }
+
+            if (byName.containsKey(hammerEnch.getName())) {
+                byName.remove(hammerEnch.getName());
+            }
+        } catch (Exception ignored) {
         }
         if (instanceRynekManager != null) {
             try {

@@ -42,11 +42,10 @@ public class GameModeCommand implements CommandExecutor, TabCompleter {
                             p2.setGameMode(gameMode);
                             p.sendMessage(ColorUtils.color("&aZmieniono tryb gry gracza &2" + p2.getName() + " &ana &2" + gameMode.toString()));
                             ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7zmienił tryb &6" + p2.getName() + " &7gry na &6" + gameMode.toString()));
-                            return false;
                         }else{
                             p.sendMessage(ColorUtils.color("&cPodany gracz jest offline!"));
-                            return false;
                         }
+                        return false;
                     }else{
                         p.setGameMode(gameMode);
                         p.sendMessage(ColorUtils.color("&aZmieniono tryb gry na &2" + gameMode.toString()));

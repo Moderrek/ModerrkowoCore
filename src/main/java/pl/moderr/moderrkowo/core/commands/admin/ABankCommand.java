@@ -17,7 +17,6 @@ import pl.moderr.moderrkowo.database.callback.CallbackEmpty;
 import pl.moderr.moderrkowo.database.callback.CallbackExists;
 import pl.moderr.moderrkowo.database.data.User;
 import pl.moderr.moderrkowo.database.exceptions.UserNotLoaded;
-import scala.Int;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +33,12 @@ public class ABankCommand implements CommandExecutor, TabCompleter {
                     try{
                         kwota = Integer.parseInt(args[2]);
                     }catch (Exception e){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }
                     if(kwota < 1){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }
@@ -91,12 +90,12 @@ public class ABankCommand implements CommandExecutor, TabCompleter {
                     try{
                         kwota = Integer.parseInt(args[2]);
                     }catch (Exception e){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }
                     if(kwota < 1){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }
@@ -148,12 +147,12 @@ public class ABankCommand implements CommandExecutor, TabCompleter {
                     try{
                         kwota = Integer.parseInt(args[2]);
                     }catch (Exception e){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }
                     if(kwota < 1){
-                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwote!"));
+                        p.sendMessage(ColorUtils.color("&cPodano niepoprawną kwotę!"));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                         return false;
                     }

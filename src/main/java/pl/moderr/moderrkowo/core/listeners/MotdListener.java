@@ -13,8 +13,8 @@ public class MotdListener implements Listener {
     public void ping(PaperServerListPingEvent e) {
         e.setMaxPlayers(e.getNumPlayers() + 1);
         e.setVersion("1.16.x");
-        String line1 = ColorUtils.color("&e⚔ &6Moderrkowo &e⚔ &eNajlepszy survival 1.16.x");
-        String line2 = ColorUtils.color("&9> &6Questy wkroczyły na serwer! &9<");
+        String line1 = ColorUtils.color("&e⚔ &6Moderrkowo &e⚔ &eNajlepszy survival 1.16");
+        String line2 = ColorUtils.color("&9> &eNowe questy &9- &6XP z roślin &9<");
         e.setMotd(centerText(line1) + "\n" + centerText(line2));
     }
 

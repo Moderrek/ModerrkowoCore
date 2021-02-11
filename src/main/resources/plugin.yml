@@ -2,8 +2,8 @@ name: ModerrkowoCore
 version: 1.0
 main: pl.moderr.moderrkowo.core.Main
 api-version: 1.16
-authors: [ MODERR ]
-softdepend: [ ModerrkowoDB, WorldGuard ]
+authors: [MODERR]
+softdepend: [ ModerrkowoDB, WorldGuard, NameManager ]
 commands:
   alogi:
     permission: moderr.admin
@@ -103,6 +103,10 @@ commands:
   drop:
     permission: moderr.admin
   unactiveallquest:
+    permission: moderr.admin
+  zmiany:
+    permission: moderr.player
+  aquest:
     permission: moderr.admin
 permissions:
   moderr.admin:

@@ -43,7 +43,6 @@ public class ChatUtil {
         nf.setMaximumFractionDigits(2);
         return nf.format(money) + " zł";
     }
-
     public static String getChatName(Player player) {
         StringBuilder prefix = new StringBuilder();
         try {
@@ -66,7 +65,28 @@ public class ChatUtil {
             return prefix.toString() + (ChatColor.of(new Color(105, 95, 217)) + player.getName());
         }
     }
-
+    public static String getOnlyName(Player player){
+        if (player.isOp()) {
+            return ChatColor.of(new Color(128, 95, 217)) + player.getName();
+        } else {
+            return ChatColor.of(new Color(105, 95, 217)) + player.getName();
+        }
+    }
+    public static String getOnlyPrefix(Player player){
+        StringBuilder prefix = new StringBuilder();
+        try {
+            User u = ModerrkowoDatabase.getInstance().getUserManager().getUser(player.getUniqueId());
+            if (u.getStuffRank().equals("MODERATOR")) {
+                prefix.append(ColorUtils.color("&aMOD&r "));
+            }
+            if (u.getStuffRank().equals("ADMIN")) {
+                prefix.append(ColorUtils.color("&cADM&r "));
+            }
+        } catch (UserNotLoaded userNotLoaded) {
+            userNotLoaded.printStackTrace();
+        }
+        return prefix.toString();
+    }
     public static String getPrefix(Player player) {
         StringBuilder prefix = new StringBuilder();
         try {

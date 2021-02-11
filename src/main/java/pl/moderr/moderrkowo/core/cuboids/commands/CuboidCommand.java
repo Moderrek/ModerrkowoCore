@@ -22,6 +22,7 @@ import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CuboidCommand implements CommandExecutor, TabExecutor {
 
@@ -142,13 +143,18 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                         }
                     }
                     if (cub != null) {
-                        p.sendMessage(ColorUtils.color("&3Informacje o działce &b" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
-                        p.sendMessage(ColorUtils.color("&bWłaściciel &f" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        p.sendMessage(ColorUtils.color("&6Informacje o działce &e" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        p.sendMessage(ColorUtils.color("&6Właściciel &f" + cub.getId().replaceFirst(CuboidsManager.getCuboidNamePrefix().toLowerCase(), "").toUpperCase()));
+                        p.sendMessage(ColorUtils.color("&6Lokalizacja &f x " + p.getLocation().getBlockX() + " y " + p.getLocation().getBlockY() + " z " + p.getLocation().getBlockZ()));
                         StringBuilder members = new StringBuilder();
-                        for (String uuid : cub.getMembers().getPlayers()) {
-                            members.append(" ").append(uuid);
+                        if(cub.getMembers().getUniqueIds().size() == 0){
+                            members.append(" Nikt nie jest dodany");
+                        }else{
+                            for (UUID uuid : cub.getMembers().getUniqueIds()) {
+                                members.append(", ").append(Bukkit.getOfflinePlayer(uuid).getName());
+                            }
                         }
-                        p.sendMessage(ColorUtils.color("&bDodani:&f" + members));
+                        p.sendMessage(ColorUtils.color("&6Dodani:&f" + members.substring(1)));
                         return true;
                     } else {
                         p.sendMessage(Main.getServerName() + ColorUtils.color(" &cAby pobrać informacje o działce najpierw musisz na niej stać!"));

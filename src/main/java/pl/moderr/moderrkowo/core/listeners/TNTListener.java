@@ -147,7 +147,7 @@ public class TNTListener implements Listener {
 
     public static List<Location> replaceSphereSolidBlocks(Location centerBlock, int radius, boolean hollow, Material to, int percent) {
 
-        List<Location> circleBlocks = new ArrayList<Location>();
+        List<Location> circleBlocks = new ArrayList<>();
 
         int bx = centerBlock.getBlockX();
         int by = centerBlock.getBlockY();

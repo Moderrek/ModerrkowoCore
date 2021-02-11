@@ -50,17 +50,6 @@ public class RynekManager implements Listener {
         load();
     }
 
-    public static boolean check(Player player) {
-        boolean isEmpty = true;
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null) {
-                isEmpty = false;
-                break;
-            }
-        }
-        return isEmpty;
-    }
-
     public void load() {
         Logger.logAdminLog("Wczytywanie przedmiotów na rynku...");
         int total = 0;
@@ -119,7 +108,8 @@ public class RynekManager implements Listener {
                 User sellerU = ModerrkowoDatabase.getInstance().getUserManager().getUser(seller.getUniqueId());
                 sellerU.getBank().money += item.cost;
                 buyer.getBank().money -= item.cost;
-                if (check(Objects.requireNonNull(buyer.getPlayer()))) {
+
+                if (Objects.requireNonNull(buyer.getPlayer()).getInventory().firstEmpty() != -1) {
                     buyer.getPlayer().getInventory().addItem(item.item.clone());
                 } else {
                     buyer.getPlayer().getLocation().getWorld().dropItem(buyer.getPlayer().getLocation(), item.item.clone());
@@ -147,7 +137,7 @@ public class RynekManager implements Listener {
                 @Override
                 public void onDone() {
                     buyer.getBank().money -= item.cost;
-                    if (!check(Objects.requireNonNull(buyer.getPlayer()))) {
+                    if (buyer.getPlayer().getInventory().firstEmpty() != -1) {
                         buyer.getPlayer().getInventory().addItem(item.item.clone());
                     } else {
                         buyer.getPlayer().getLocation().getWorld().dropItem(buyer.getPlayer().getLocation(), item.item.clone());
@@ -323,7 +313,8 @@ public class RynekManager implements Listener {
                 return;
             }
             if (item.owner.equals(p.getUniqueId())) {
-                if (check(Objects.requireNonNull(p))) {
+                if (p.getInventory().firstEmpty() != -1)
+                {
                     p.getInventory().addItem(item.item.clone());
                 } else {
                     p.getWorld().dropItem(p.getLocation(), item.item.clone());

@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class FishListener implements Listener {
 
-    WeightedList<ItemStack> randomDrop = new WeightedList<>();
+    private final WeightedList<ItemStack> randomDrop = new WeightedList<>();
 
     public FishListener(){
         randomDrop.put(new ItemStack(Material.CHARCOAL), 12);
@@ -32,18 +32,18 @@ public class FishListener implements Listener {
         randomDrop.put(new ItemStack(Material.CLAY), 8);
         randomDrop.put(new ItemStack(Material.PAPER), 8);
         randomDrop.put(new ItemStack(Material.BOOK), 2);
-        randomDrop.put(new ItemStack(Material.COD), 12);
-        randomDrop.put(new ItemStack(Material.SALMON), 12);
-        randomDrop.put(new ItemStack(Material.TROPICAL_FISH), 5);
-        randomDrop.put(new ItemStack(Material.PUFFERFISH), 6);
+        randomDrop.put(new ItemStack(Material.COD), 30);
+        randomDrop.put(new ItemStack(Material.SALMON), 24);
+        randomDrop.put(new ItemStack(Material.TROPICAL_FISH), 10);
+        randomDrop.put(new ItemStack(Material.PUFFERFISH), 12);
         randomDrop.put(new ItemStack(Material.INK_SAC), 10);
         randomDrop.put(new ItemStack(Material.COCOA_BEANS), 1);
         randomDrop.put(new ItemStack(Material.BONE), 3);
         randomDrop.put(new ItemStack(Material.ENDER_PEARL), 2);
         randomDrop.put(new ItemStack(Material.GLASS_BOTTLE), 4);
         randomDrop.put(new ItemStack(Material.EXPERIENCE_BOTTLE), 1);
-        randomDrop.put(new ItemStack(Material.NAME_TAG), 1);
-        randomDrop.put(new ItemStack(Material.NAUTILUS_SHELL), 1);
+        randomDrop.put(new ItemStack(Material.NAME_TAG), 4);
+        randomDrop.put(new ItemStack(Material.NAUTILUS_SHELL), 5);
     }
 
     @EventHandler

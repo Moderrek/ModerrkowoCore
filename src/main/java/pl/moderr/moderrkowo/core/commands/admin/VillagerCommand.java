@@ -21,7 +21,7 @@ import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 import pl.moderr.moderrkowo.core.utils.RandomUtils;
-import pl.moderr.moderrkowo.core.villager.data.VillagerData;
+import pl.moderr.moderrkowo.core.custom.villagers.data.VillagerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class VillagerCommand implements CommandExecutor, TabCompleter, Listener 
         ArrayList<String> list = new ArrayList<>();
         list.add("&aLosowy teleport");
         list.add("&c&lQ &7???");
-        for(VillagerData data : Main.getInstance().villagerManager.shops.values()){
+        for(VillagerData data : Main.getInstance().villagerManager.villagers.values()){
             list.add(data.getCommandSpawnName());
         }
         return list;
@@ -72,7 +72,7 @@ public class VillagerCommand implements CommandExecutor, TabCompleter, Listener 
                     p.teleport(RandomUtils.getRandom(p.getWorld()));
                     p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                     p.sendMessage(ColorUtils.color("&aUżyłeś losowego teleportu u podróżnika"));
-                    p.sendTitle(new Title("", "" + ChatColor.GREEN + "x: " + p.getLocation().getBlockX() + " z:" + p.getLocation().getBlockZ()));
+                    p.sendTitle(new Title("", "" + ChatColor.GREEN + "x " + p.getLocation().getBlockX() + " z " + p.getLocation().getBlockZ()));
                 }
             }
         }

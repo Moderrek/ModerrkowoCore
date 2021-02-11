@@ -25,7 +25,7 @@ import java.util.Random;
 public class DropEvent implements Listener {
 
     // TODO DROP
-    WeightedList<DropItem> dropItemWeightedListOVERWORLD;
+    private final WeightedList<DropItem> dropItemWeightedListOVERWORLD;
 
     public DropEvent() {
         this.dropItemWeightedListOVERWORLD = new WeightedList<>();
@@ -39,7 +39,7 @@ public class DropEvent implements Listener {
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.FIREWORK_ROCKET, 1, 7), 10);
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.QUARTZ, 1, 20), 14);
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.REDSTONE, 1, 20), 10);
-        this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.BLAZE_POWDER, 1, 5), 3);
+        this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.BLAZE_POWDER, 1, 30), 10);
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.COCOA_BEANS, 1, 32), 2);
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.LEATHER, 1, 20), 2);
         this.dropItemWeightedListOVERWORLD.put(new DropItem(Material.SLIME_BALL, 1, 16), 2);
@@ -54,7 +54,7 @@ public class DropEvent implements Listener {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), () -> {
             int i;
             i = rnd.nextInt(100);
-            if (i <= 50) {
+            if (i <= 60) {
                 this.doDrop();
             }
         }, 0L, 72000L);
@@ -70,10 +70,10 @@ public class DropEvent implements Listener {
             if(Objects.requireNonNull(chest.getCustomName()).equalsIgnoreCase(ColorUtils.color("&c&lZrzut zasobów"))){
                 try {
                     User u = ModerrkowoDatabase.getInstance().getUserManager().getUser(e.getPlayer().getUniqueId());
-                    int kwota = RandomUtils.getRandomInt(100,3000);
+                    int kwota = RandomUtils.getRandomInt(100,10000);
                     u.getBank().money += kwota;
                     e.getPlayer().sendMessage(ColorUtils.color("&9Drop &6> &a+ " + ChatUtil.getMoney(kwota)));
-                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &eZrzut zasobów został otworzony!"));
+                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &7Zrzut zasobów został otworzony!"));
                     Objects.requireNonNull(Bukkit.getWorld("world")).spawnParticle(Particle.TOTEM,chest.getLocation().getBlockX(),chest.getLocation().getBlockY(),chest.getLocation().getBlockZ(),20,1,1,1,0.1);
                     chest.setCustomName(ColorUtils.color("&eOtworzony zrzut przez &2" + e.getPlayer().getName()));
                     Chest chestBlock = (Chest) chest.getBlock().getState();
@@ -111,7 +111,7 @@ public class DropEvent implements Listener {
                             chest.getInventory().setItem(i, is);
                         }
                     }
-                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &eZrzut zasobÓw spadŁ na mape! &8(&7X: " + Math.floor(loc.getX()) + " Z: " + Math.floor(loc.getZ()) + "&8)"));
+                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &7Zrzut zasobów spadł na mapę! &8(&7x " + Math.floor(loc.getX()) + " z " + Math.floor(loc.getZ()) + "&8)"));
                     Objects.requireNonNull(Bukkit.getWorld("world")).strikeLightningEffect(Objects.requireNonNull(chest.getLocation()));
                 }
             }.runTaskLater(Main.getInstance(), 1L);

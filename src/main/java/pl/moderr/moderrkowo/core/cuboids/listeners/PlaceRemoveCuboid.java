@@ -11,10 +11,7 @@ import com.sk89q.worldguard.protection.managers.storage.StorageException;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -23,10 +20,43 @@ import org.bukkit.metadata.FixedMetadataValue;
 import pl.moderr.moderrkowo.core.Main;
 import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
+import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class PlaceRemoveCuboid implements Listener {
+
+    public PlaceRemoveCuboid(){
+        for(World w : Bukkit.getWorlds()){
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionManager regions = container.get(BukkitAdapter.adapt(w));
+            if(regions == null){
+                ModerrkowoLog.LogAdmin("Wystąpił błąd podczas wczytywania działek w " + w.getName());
+                continue;
+            }
+            for(ProtectedRegion cub : regions.getRegions().values()){
+                if(cub.getId().startsWith(CuboidsManager.getCuboidNamePrefix())){
+                    String playerName = cub.getId().replace(CuboidsManager.getCuboidNamePrefix(), "");
+                    Location loc = Main.getInstance().dataConfig.getLocation("cuboid." + CuboidsManager.getCuboidNamePrefix() + playerName);
+                    if(loc == null){
+                        ModerrkowoLog.LogAdmin(playerName + " ma zepsutą działkę!");
+                        continue;
+                    }
+                    if(loc.getBlock().getType().equals(Material.AIR)){
+                        loc.getBlock().setType(Material.LODESTONE);
+                    }
+                    if(loc.getBlock().hasMetadata("cuboid") && loc.getBlock().hasMetadata("cuboid-owner")){
+                        ModerrkowoLog.LogAdmin("Działka była wczytana " + playerName + " [" + w.getName() + "]");
+                    }else{
+                        loc.getBlock().setMetadata("cuboid", new FixedMetadataValue(Main.getInstance(), true));
+                        loc.getBlock().setMetadata("cuboid-owner", new FixedMetadataValue(Main.getInstance(), playerName));
+                        ModerrkowoLog.LogAdmin("Stworzono i wczytano działka " + playerName + " [" + w.getName() + "]");
+                    }
+                }
+            }
+        }
+    }
 
     @EventHandler
     public void cuboidPlace(BlockPlaceEvent e) {
@@ -44,7 +74,7 @@ public class PlaceRemoveCuboid implements Listener {
             ApplicableRegionSet protectedRegionsCheck;
             assert regions != null;
             if (regions.getRegion(CuboidsManager.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase()) != null) {
-                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &cJuż masz jedną działkę!"));
+                e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &cJuż masz jedną działkę w tym świecie!"));
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                 e.setCancelled(true);
                 return;
@@ -79,8 +109,14 @@ public class PlaceRemoveCuboid implements Listener {
                 regions.addRegion(newCuboid);
                 e.getBlockPlaced().setMetadata("cuboid",
                         new FixedMetadataValue(Main.getInstance(), true));
+                Main.getInstance().dataConfig.set("cuboid." + CuboidsManager.getCuboidNamePrefix().toLowerCase() + e.getPlayer().getName().toLowerCase(), e.getBlockPlaced().getLocation());
+                try {
+                    Main.getInstance().dataConfig.save(Main.getInstance().dataFile);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
                 e.getBlockPlaced().setMetadata("cuboid-owner",
-                        new FixedMetadataValue(Main.getInstance(), e.getPlayer().getName()));
+                        new FixedMetadataValue(Main.getInstance(), e.getPlayer().getName().toLowerCase()));
                 e.getPlayer().sendMessage(Main.getServerName() + ColorUtils.color(" &aPostawiłeś własną prywatną działkę! Aby zarządzać nią wpisz &2/dzialka"));
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
                 try {
@@ -96,7 +132,7 @@ public class PlaceRemoveCuboid implements Listener {
     @EventHandler
     public void cuboidDestroy(BlockBreakEvent e) {
         if (e.getBlock().hasMetadata("cuboid")) {
-            if (e.getBlock().getMetadata("cuboid-owner").get(0).asString().equals(e.getPlayer().getName())) {
+            if (e.getBlock().getMetadata("cuboid-owner").get(0).asString().equals(e.getPlayer().getName().toLowerCase())) {
                 BlockVector3 block = BukkitAdapter.asBlockVector(e.getBlock().getLocation());
                 RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
                 RegionManager regions = container.get(BukkitAdapter.adapt(e.getBlock().getWorld()));
@@ -104,20 +140,24 @@ public class PlaceRemoveCuboid implements Listener {
                 ApplicableRegionSet set = regions.getApplicableRegions(block);
                 for (ProtectedRegion cuboid : set.getRegions()) {
                     if (cuboid.getId().startsWith(CuboidsManager.getCuboidNamePrefix())) {
-                        regions.removeRegion(cuboid.getId());
-                        e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &aPomyślnie usunięto działkę!")));
                         e.setCancelled(true);
-                        e.getBlock().setType(Material.AIR);
-                        if (!e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-                            e.getBlock().getLocation().getWorld().dropItemNaturally(e.getBlock().getLocation(), Objects.requireNonNull(CuboidsManager.getCuboidItem(1)));
-                        }
-                        e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
-                        e.getBlock().removeMetadata("cuboid", Main.getInstance());
-                        e.getBlock().removeMetadata("cuboid-owner", Main.getInstance());
                         try {
+                            Main.getInstance().dataConfig.set("cuboid." + CuboidsManager.getCuboidNamePrefix().toLowerCase() +  e.getPlayer().getName().toLowerCase(), null);
+                            Main.getInstance().dataConfig.save(Main.getInstance().dataFile);
+                            e.getBlock().setType(Material.AIR);
+                            e.getBlock().removeMetadata("cuboid", Main.getInstance());
+                            e.getBlock().removeMetadata("cuboid-owner", Main.getInstance());
+                            regions.removeRegion(cuboid.getId());
                             regions.save();
-                        } catch (StorageException storageException) {
-                            storageException.printStackTrace();
+                            e.getPlayer().sendTitle(new Title(Main.getServerName(), ColorUtils.color(" &aPomyślnie usunięto działkę!")));
+                            if (!e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+                                e.getBlock().getLocation().getWorld().dropItemNaturally(e.getBlock().getLocation(), Objects.requireNonNull(CuboidsManager.getCuboidItem(1)));
+                            }
+                            e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
+                        } catch (IOException | StorageException ioException) {
+                            ioException.printStackTrace();
+                            e.getPlayer().playSound(e.getBlock().getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
+                            e.getPlayer().sendMessage(ColorUtils.color("&cWystąpił błąd podczas usuwania działki"));
                         }
                     }
                 }

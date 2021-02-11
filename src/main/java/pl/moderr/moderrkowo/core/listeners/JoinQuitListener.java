@@ -27,14 +27,11 @@ public class JoinQuitListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        p.sendMessage(ColorUtils.color("&b❄ " + HexResolver.parseHexString("<gradient:#FD4F1D:#FCE045>Moderrkowo") + " &r&b❄"));
+        p.sendMessage(ColorUtils.color("&6⚔ " + HexResolver.parseHexString("<gradient:#FD4F1D:#FCE045>Moderrkowo") + " &r&6⚔"));
         p.sendMessage(ColorUtils.color("&6> &7Witaj, &6" + p.getName() + " &7na &6MODERRKOWO!"));
         p.sendMessage(ColorUtils.color("&6> &7Discord serwera gdzie znajdują sie wszystkie informacje &c/discord"));
         p.sendMessage(ColorUtils.color("&6> &7Granie na serwerze oznacza akceptację regulaminu &c/regulamin"));
         p.sendMessage(ColorUtils.color("&6> &cModerrkowo &7to gwarancja satysfakcji zabawy i bezpieczeństwa!"));
-        p.sendMessage(" ");
-        p.sendMessage(ColorUtils.color("&cNie dawno dodaliśmy QUESTY, jednym z takowych jest RYBAK na SPAWNIE! /spawn"));
-        p.sendMessage(" ");
         for (Player players : Bukkit.getOnlinePlayers()) {
             updateTab(players);
         }

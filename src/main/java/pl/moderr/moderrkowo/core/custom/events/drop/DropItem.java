@@ -8,8 +8,8 @@ public class DropItem {
     public int min;
     public int max;
     public int count;
-    public boolean isRandom;
-    public Material mat;
+    public final boolean isRandom;
+    public final Material mat;
 
     @Contract(pure = true)
     public DropItem(final Material mat, final int min, final int max) {

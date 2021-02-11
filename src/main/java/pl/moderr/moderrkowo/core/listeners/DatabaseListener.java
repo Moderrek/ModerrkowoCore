@@ -1,7 +1,9 @@
 package pl.moderr.moderrkowo.core.listeners;
 
+import net.agentlv.namemanager.api.NameManagerAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.moderr.moderrkowo.core.utils.ChatUtil;
@@ -22,6 +24,13 @@ public class DatabaseListener implements ModerrDatabaseListener {
     public void onLoadUser(User user) {
         if (user.getPlayer() != null) {
             user.getPlayer().setPlayerListName(ChatUtil.getChatName(user.getPlayer()));
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getUUID());
+            String prefix = ChatUtil.getOnlyPrefix(user.getPlayer()) + ColorUtils.color("&e");
+            if(offlinePlayer == null){
+                System.out.println(user.getName() + " >> OfflinePlayer is null");
+            }else{
+                NameManagerAPI.setNametag(offlinePlayer, prefix, "");
+            }
         }
         ModerrkowoLog.LogAdmin("Załadowano gracza pomyślnie " + user.getName());
     }

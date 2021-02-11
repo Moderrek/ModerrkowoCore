@@ -18,12 +18,10 @@ import java.util.Objects;
 
 public class CuboidsManager {
 
-    private static CuboidsManager instance;
     private static Material cuboidMaterial;
     private static String cuboidDisplayName;
 
     public void Start() {
-        instance = this;
         try {
             cuboidMaterial = Material.valueOf("LODESTONE");
             cuboidDisplayName = ColorUtils.color("&aDziałka 64x64");

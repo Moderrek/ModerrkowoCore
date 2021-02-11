@@ -1,5 +1,6 @@
-package pl.moderr.moderrkowo.core.commands.admin;
+package pl.moderr.moderrkowo.core.commands.user.messages;
 
+import com.destroystokyo.paper.Title;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,23 +10,27 @@ import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 
-public class AdminChatCommand implements CommandExecutor {
+public class HelpopCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            if (p.isOp()) {
-                if (args.length > 0) {
-                    String message = Logger.getMessage(args, 0, true);
-                    Logger.logAdminChat("&7" + p.getName() + "&8: &f" + message);
+            if (args.length > 0) {
+                boolean success = Logger.logHelpMessage(p, Logger.getMessage(args, 0, true));
+                if (success) {
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
-                    return true;
+                    p.sendMessage(ColorUtils.color("&aPomyślnie wysłano!"));
+                    p.sendTitle(new Title(ColorUtils.color("&6&lModerrkowo"), ColorUtils.color("&aWysłano wiadomość.")));
                 } else {
-                    p.sendMessage(ColorUtils.color("&cNapisz wiadomość!"));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                    return false;
+                    p.sendTitle(new Title(ColorUtils.color("&6&lModerrkowo"), ColorUtils.color("&cNie wysłano wiadomości.")));
+                    p.sendMessage(ColorUtils.color("&cBrak aktywnych moderatorów."));
                 }
+                return true;
             } else {
+                p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                p.sendMessage(ColorUtils.color("&cUżycie: &e/helpop <wiadomość>"));
                 return false;
             }
         } else {

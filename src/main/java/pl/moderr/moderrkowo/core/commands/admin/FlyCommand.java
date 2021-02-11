@@ -33,7 +33,6 @@ public class FlyCommand implements CommandExecutor {
                     p.sendMessage(ColorUtils.color("&cPodany gracz jest offline!"));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO,1,1);
                 }
-                return false;
             }else{
                 p.setAllowFlight(!p.getAllowFlight());
                 if(p.getAllowFlight()){
@@ -45,8 +44,8 @@ public class FlyCommand implements CommandExecutor {
                     ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7wyłączył latanie"));
                     p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
                 }
-                return false;
             }
+            return false;
         }
         return false;
     }
