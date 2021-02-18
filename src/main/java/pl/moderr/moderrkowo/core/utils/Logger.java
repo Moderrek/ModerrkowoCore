@@ -17,9 +17,9 @@ public class Logger {
             if (p.isOp()) {
                 p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 TextComponent tc = new TextComponent();
-                tc.setText(ColorUtils.color(String.format("&8[&dHELP&8] &7%s&8: &e%s", sender.getName(), message)));
+                tc.setText(ColorUtils.color(String.format("&8[&9Pomoc&8] &7%s&8: &e%s", sender.getName(), message)));
                 tc.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ahelpop " + sender.getName() + " "));
-                tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color(String.format("&e&lOdpowiedz &8(&7%s&8)", sender.getName())))));
+                tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color(String.format("&eOdpowiedz &a%s)", sender.getName())))));
                 p.spigot().sendMessage(tc);
                 numberOfAdmins++;
             }

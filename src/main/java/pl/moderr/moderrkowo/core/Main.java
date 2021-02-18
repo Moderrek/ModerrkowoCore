@@ -1,68 +1,80 @@
 package pl.moderr.moderrkowo.core;
 
-import com.sk89q.worldguard.WorldGuard;
-import org.bukkit.Bukkit;
-import org.bukkit.Statistic;
-import org.bukkit.World;
+import net.minecraft.server.v1_16_R3.PacketPlayOutWorldParticles;
+import net.minecraft.server.v1_16_R3.Particles;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import pl.moderr.moderrkowo.core.commands.user.information.*;
-import pl.moderr.moderrkowo.core.custom.PaySign;
-import pl.moderr.moderrkowo.core.custom.antylogout.AntyLogoutManager;
+
 import pl.moderr.moderrkowo.core.commands.admin.*;
+import pl.moderr.moderrkowo.core.commands.user.information.*;
 import pl.moderr.moderrkowo.core.commands.user.messages.HelpopCommand;
 import pl.moderr.moderrkowo.core.commands.user.messages.MessageCommand;
 import pl.moderr.moderrkowo.core.commands.user.messages.ReplyCommand;
-import pl.moderr.moderrkowo.core.commands.user.weather.PogodaCommand;
 import pl.moderr.moderrkowo.core.commands.user.teleportation.*;
+import pl.moderr.moderrkowo.core.commands.user.weather.PogodaCommand;
 import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
+import pl.moderr.moderrkowo.core.custom.PaySign;
+import pl.moderr.moderrkowo.core.custom.antylogout.AntyLogoutManager;
+import pl.moderr.moderrkowo.core.custom.discord.DiscordManager;
 import pl.moderr.moderrkowo.core.custom.enchantments.HammerEnchantment;
 import pl.moderr.moderrkowo.core.custom.events.drop.DropEvent;
-import pl.moderr.moderrkowo.core.economy.*;
+import pl.moderr.moderrkowo.core.custom.fishing.FishListener;
+import pl.moderr.moderrkowo.core.custom.npc.NPCManager;
+import pl.moderr.moderrkowo.core.custom.timevoter.TimeVoter;
+import pl.moderr.moderrkowo.core.custom.villagers.VillagerManager;
+import pl.moderr.moderrkowo.core.custom.villagers.data.*;
+import pl.moderr.moderrkowo.core.economy.PrzelejCommand;
+import pl.moderr.moderrkowo.core.economy.RynekCommand;
+import pl.moderr.moderrkowo.core.economy.RynekManager;
+import pl.moderr.moderrkowo.core.economy.TopkaCommand;
 import pl.moderr.moderrkowo.core.listeners.*;
 import pl.moderr.moderrkowo.core.utils.ChatUtil;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.HexResolver;
 import pl.moderr.moderrkowo.core.utils.Logger;
-import pl.moderr.moderrkowo.core.custom.villagers.VillagerManager;
-import pl.moderr.moderrkowo.core.custom.villagers.data.*;
 import pl.moderr.moderrkowo.database.ModerrkowoDatabase;
 import pl.moderr.moderrkowo.database.data.PlayerVillagerData;
 import pl.moderr.moderrkowo.database.data.User;
 import pl.moderr.moderrkowo.database.exceptions.ConnectionIsNotOpenedException;
 import pl.moderr.moderrkowo.database.exceptions.ConnectionReconnectException;
 
+import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public final class Main extends JavaPlugin {
 
+    // Instance
     private static Main instance;
-
+    // Managers
     public CuboidsManager instanceCuboids;
     public AntyLogoutManager instanceAntyLogout;
     public RynekManager instanceRynekManager;
-    public SprzedazManager instanceSprzedazManager;
     public VillagerManager villagerManager;
-
+    public TimeVoter timeVoter;
+    public DiscordManager discordManager;
+    // Listeners
     public DatabaseListener instanceDatabaseListener;
-
+    // Events
     public DropEvent dropEvent;
-
-    public HammerEnchantment hammerEnch = null;
-
+    // Enchantments
+    public HammerEnchantment hammerEnchantment = null;
+    // Files
     public File dataFile = new File(getDataFolder(), "data.yml");
     public FileConfiguration dataConfig;
 
@@ -70,7 +82,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // START
         long start = System.currentTimeMillis();
-        Logger.logPluginMessage("Wczytywanie pluginu...");
+        Logger.logPluginMessage("Wczytywanie wtyczki Main");
 
         // Constructor
         instance = this;
@@ -83,22 +95,22 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano config");
         //</editor-fold> Config
 
-        hammerEnch = new HammerEnchantment();
-        Bukkit.getPluginManager().registerEvents(hammerEnch, this);
-        loadEnchantments(hammerEnch);
+        hammerEnchantment = new HammerEnchantment();
+        Bukkit.getPluginManager().registerEvents(hammerEnchantment, this);
+        loadEnchantments(hammerEnchantment);
         Logger.logPluginMessage("Załadowano Szeroki Trzon");
+
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 
         //<editor-fold> Listeners
         try {
             instanceDatabaseListener = new DatabaseListener();
             ModerrkowoDatabase.getInstance().registerDatabaseListener(instanceDatabaseListener);
         } catch (Exception ignored) { }
-        Bukkit.getPluginManager().registerEvents(new PortalListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(), this);
         Bukkit.getPluginManager().registerEvents(new MotdListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinQuitListener(), this);
-        Bukkit.getPluginManager().registerEvents(new MendingRemover(), this);
         Bukkit.getPluginManager().registerEvents(new CropBreakListener(), this);
         Bukkit.getPluginManager().registerEvents(new VillagerCommand(), this);
         Bukkit.getPluginManager().registerEvents(new PogodaCommand(), this);
@@ -108,7 +120,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
         Bukkit.getPluginManager().registerEvents(new FishListener(), this);
         Bukkit.getPluginManager().registerEvents(new PaySign(), this);
-        Logger.logPluginMessage("Wczytano listenery");
+        Logger.logPluginMessage("Wczytano listeners");
         //</editor-fold> Listeners
 
         //<editor-fold> Commands
@@ -148,47 +160,26 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("drop")).setExecutor(new DropCommand());
         Objects.requireNonNull(getCommand("unactiveallquest")).setExecutor(new UnactiveAllQuest());
         Objects.requireNonNull(getCommand("zmiany")).setExecutor(new ZmianyCommand());
-        getCommand("aquest").setExecutor(new QuestCommand());
+        Objects.requireNonNull(getCommand("aquest")).setExecutor(new QuestCommand());
+        Objects.requireNonNull(getCommand("npc")).setExecutor(new NPCManager());
         Logger.logPluginMessage("Wczytano komendy");
+        });
         //</editor-fold> Commands
 
         //<editor-fold> AutoMessage
         ArrayList<String> message = new ArrayList<>();
-        message.add("&7Jeżeli chcesz aby zmienić pogodę na ładną użyj &c/pogoda!");
-        message.add("&7Twój przyjaciel jest daleko? Użyjcie &c/tpa");
-        message.add("&7Widzisz buga? Prosimy zgłoś go na &c/helpop");
-        message.add("&7Jeżeli chcesz napisać do kogoś prywatną wiadomość użyj &c/msg!");
-        message.add("&7Aby szybko komuś odpisać na prywatną wiadomość użyj &c/r");
-        message.add("&7Twoje miejsce śmierci zawsze będzie napisane na chacie!");
-        message.add("&7Potrzebujesz działki? Musisz ją wytworzyć &c/craftingdzialki");
-        message.add("&7Portal endu jest wyłączony!");
-        message.add("&7Po uderzeniu moba/gracza wyświetla się ilośc zadanych serc");
-        message.add("&7Na naszym serwerze możesz sobie ustawić dom! &c/ustawdom");
-        message.add("&7Aby prze teleportować się do domu użyj &c/dom");
-        message.add("&7Jeżeli chcesz wesprzeć nasz serwer wejdź na &chttps://moderr.pl/dotacja");
-        message.add("&7Jeżeli chcesz wbić na naszego Discord'a &c/discord");
-        message.add("&7Nie jesteś zapoznany z regulaminem? &c/regulamin");
-        message.add("&7Gdy jesteś podczas walki nie możesz się wylogować!");
-        message.add("&7Godziny walki trwają od &c18-8");
-        message.add("&7Aby prze teleportować się na spawna wpisz &c/spawn");
-        message.add("&7Na spawnie możesz znaleźć wieśniaków z zadaniami &c/spawn");
-        message.add("&7Zaklęcie naprawy jest wyłączone na serwerze!");
-        message.add("&7Portal do kresu jest tymczasowo zamknięty. Będzie otwarty pod koniec 1 edycji");
-        message.add("&7Podczas walki nie możesz się wylogować!");
-        message.add("&7Aby zarobić wykonuj zadania i wystawiaj przedmioty na rynku");
-        message.add("&7Przedmioty możesz sprzedawać pod &c/rynek wystaw <cena>");
-        message.add("&7Przedmioty do kupna znajdziesz pod &c/rynek");
-        message.add("&7Chcesz przelać pieniądze do przyjaciela? &c/przelej");
-        message.add("&7Questy możesz znaleźć na spawnie!");
-        message.add("&7Łowiąc możesz zarabiać, i zyskać rzadkie przedmioty!");
-        message.add("&7TNT nie można wytworzyć, można je tylko zdobyć w zadaniu");
-        message.add("&7Jeżeli masz działkę użyj &c/dzialka");
-        message.add("&7Chcesz zarobić? Rób zadania i wystawiaj na &c/rynek");
-        message.add("&7Chcesz kogoś zgłosić &c/helpop");
-        message.add("&7Średnio co godzinę na losowych koordynatach pojawia się zrzut!");
-        message.add("&7Robiąc zadania możesz zdobywać złotówki.");
-        message.add("&7Aby zobaczyć zmiany wpisz &c/zmiany");
-        message.add("&7Aby zmienić pogodę na ładną wpisz &c/pogoda");
+        message.add("&cPamiętajcie że to 2 dniowy okres testowy)");
+        message.add("&cOkres testowy kończy się 26 lutego");
+        message.add("&7Nowa edycja zaczyna się 26 lutego");
+        message.add("&7Gracz może otrzymać przedmioty w celu testu!");
+        message.add("&7Wszystko znajduję się w trybie testu");
+        message.add("&7Zgłoszenie błędu = nagroda na edycji");
+        message.add("&7Wszystko może ulec zmianie, serwer może być niestabilny");
+        message.add("&7Wszystko może być zbugowane/posiadać błędy");
+        message.add("&7Celem testu jest wypuszczenie jak najbardziej dopracowanego pluginu");
+        message.add("&7Wszystko co zdobędziecie w okresie testowym zostanie zrestartowane!");
+        message.add("&7Gdy zgłosicie chociaż jeden błąd otrzymacie na stałe odznakę \"Tester Edycji II\"");
+        message.add("&7Więcej informacji niedługo");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             String messageS = message.get(new Random().nextInt(message.size()));
             Bukkit.broadcastMessage(ColorUtils.color("&8[&6❄&8] " + messageS));
@@ -213,9 +204,20 @@ public final class Main extends JavaPlugin {
 
         //<editor-fold> EventDrop
         dropEvent = new DropEvent();
+        Logger.logPluginMessage("Wczytano event DROP");
         //</editor-fold> EventDrop
 
        villagerManager = new VillagerManager();
+       Logger.logPluginMessage("Wczytano villagerów");
+
+       discordManager = new DiscordManager();
+       Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+           try {
+               discordManager.StartBot();
+           } catch (LoginException e) {
+               e.printStackTrace();
+           }
+       });
 
         //<editor-fold> Scoreboard
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
@@ -229,7 +231,7 @@ public final class Main extends JavaPlugin {
                 ScoreboardManager sm = Bukkit.getScoreboardManager();
                 Scoreboard scoreboard = sm.getNewScoreboard();
                 Objective objective;
-                objective = scoreboard.registerNewObjective(user.getName(), "dummy", ColorUtils.color("&6&lModerrkowo"));
+                objective = scoreboard.registerNewObjective(user.getName(), "dummy", ColorUtils.color("&e&lModerrkowo"));
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                 PlayerVillagerData data = null;
                 try{
@@ -243,9 +245,10 @@ public final class Main extends JavaPlugin {
 
                 }
                 Score score1 = objective.getScore(" ");
-                Score score2 = objective.getScore(ColorUtils.color("&e" + ChatUtil.getPrefix(Objects.requireNonNull(user.getPlayer()))));
+                Score score2 = objective.getScore(ColorUtils.color("&9" + user.getName()));
                 Score score3 = objective.getScore(ColorUtils.color("&fPortfel: &6" + ChatUtil.getMoney(user.getBank().money)));
                 Score score4 = objective.getScore(ColorUtils.color("&fCzas gry: &a" + getTicksToTime(user.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE))));
+                Score score7 = objective.getScore(ColorUtils.color("&6moderrkowo.pl"));
                 if(data == null) {
                     Score score5 = objective.getScore(ColorUtils.color("&fAktywny quest: &abrak"));
                     Score score6 = objective.getScore("  ");
@@ -255,6 +258,7 @@ public final class Main extends JavaPlugin {
                     score4.setScore(-4);
                     score5.setScore(-5);
                     score6.setScore(-6);
+                    score7.setScore(-7);
                 }
                 else{
                     if(!villagerManager.villagers.containsKey(data.getVillagerId())){
@@ -266,6 +270,7 @@ public final class Main extends JavaPlugin {
                         score4.setScore(-4);
                         score5.setScore(-5);
                         score6.setScore(-6);
+                        score7.setScore(-7);
                         user.getPlayer().setScoreboard(scoreboard);
                         continue;
                     }
@@ -335,17 +340,13 @@ public final class Main extends JavaPlugin {
                     score4.setScore(-4);
                     score5.setScore(-5);
                     score6.setScore(last-1);
+                    score7.setScore(last-2);
                 }
                 user.getPlayer().setScoreboard(scoreboard);
             }
-        }, 0, 20 * 10);
-        Logger.logPluginMessage("Wczytano scoreboard'y");
+        }, 0, 20 * 15);
+        Logger.logPluginMessage("Wczytano scoreboard");
         //</editor-fold> Scoreboard
-
-        //<editor-fold> Sprzedaz
-        instanceSprzedazManager = new SprzedazManager();
-        Logger.logPluginMessage("Wczytano sprzedaż");
-        //</editor-fold> Sprzedaz
 
         //<editor-fold> Rynek
         instanceRynekManager = new RynekManager();
@@ -354,7 +355,10 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano rynek");
         //</editor-fold> Rynek
 
+        timeVoter = new TimeVoter();
+
         Logger.logPluginMessage("Wczytano plugin [CORE] w &8(&a" + (System.currentTimeMillis() - start) + "ms&8)");
+        Logger.logPluginMessage("Wczytano wersję pluginu 2.0");
         // END
     }
 
@@ -370,9 +374,9 @@ public final class Main extends JavaPlugin {
             e.printStackTrace();
         }
         if (registered) {
-            Logger.logPluginMessage("Zarejestrowano " + enchantment.getName());
+            Logger.logPluginMessage("Zarejestrowano " + enchantment.getKey());
         }else{
-            Logger.logPluginMessage("Wystąpił bład przy rejestrowaniu " + enchantment.getName());
+            Logger.logPluginMessage("Wystąpił błąd przy rejestrowaniu " + enchantment.getKey());
         }
     }
 
@@ -396,6 +400,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        discordManager.EndBot();
+        timeVoter.Disable();
         ModerrkowoDatabase.getInstance().unregisterDatabaseListener(instanceDatabaseListener);
         try {
             dataConfig.save(dataFile);
@@ -413,13 +419,8 @@ public final class Main extends JavaPlugin {
             HashMap<Integer, Enchantment> byId = (HashMap<Integer, Enchantment>) byIdField.get(null);
             HashMap<Integer, Enchantment> byName = (HashMap<Integer, Enchantment>) byNameField.get(null);
 
-            if (byId.containsKey(hammerEnch.getKey())) {
-                byId.remove(hammerEnch.getKey());
-            }
-
-            if (byName.containsKey(hammerEnch.getName())) {
-                byName.remove(hammerEnch.getName());
-            }
+            byId.remove(hammerEnchantment.getKey());
+            byName.remove(hammerEnchantment.getName());
         } catch (Exception ignored) {
         }
         if (instanceRynekManager != null) {

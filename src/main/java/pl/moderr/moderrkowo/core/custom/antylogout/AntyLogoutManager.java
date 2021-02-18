@@ -127,7 +127,7 @@ public class AntyLogoutManager implements Listener {
     private final int seconds = 10;
 
     public void setAntyLogout(Player p) {
-        AntyLogoutItem item = new AntyLogoutItem(p.getUniqueId(), seconds, Bukkit.createBossBar(ColorUtils.color("&aANTY LOGOUT"), BarColor.RED, BarStyle.SOLID));
+        AntyLogoutItem item = new AntyLogoutItem(seconds, Bukkit.createBossBar(ColorUtils.color("&aANTY LOGOUT"), BarColor.RED, BarStyle.SOLID));
         if (!antyLogout.containsKey(p.getUniqueId())) {
             antyLogout.put(p.getUniqueId(), item);
             item.bossBar.addPlayer(p);

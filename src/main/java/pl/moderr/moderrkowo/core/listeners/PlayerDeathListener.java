@@ -32,8 +32,8 @@ public class PlayerDeathListener implements Listener {
 
             killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             p.playSound(p.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1);
-            p.sendMessage(ColorUtils.color("&8[&c*&8] &7Zostałeś zabity przez &c" + killer.getName()));
-            killer.sendMessage(ColorUtils.color("&8[&a*&8] &7Zabiłeś &6" + p.getName()));
+            p.sendMessage(ColorUtils.color("&8[&c!&8] &7Zostałeś zabity przez &c" + killer.getName()));
+            killer.sendMessage(ColorUtils.color("&8[&a!&8] &7Zabiłeś &6" + p.getName()));
         }
         if (Objects.requireNonNull(e.getDeathMessage()).contains("drowned")) {
             e.setDeathMessage(ColorUtils.color("&6" + e.getEntity().getName() + " &7utonął"));

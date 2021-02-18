@@ -27,6 +27,7 @@ public class JoinQuitListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        p.setPlayerListName(ColorUtils.color("&cWczytywanie..."));
         p.sendMessage(ColorUtils.color("&6⚔ " + HexResolver.parseHexString("<gradient:#FD4F1D:#FCE045>Moderrkowo") + " &r&6⚔"));
         p.sendMessage(ColorUtils.color("&6> &7Witaj, &6" + p.getName() + " &7na &6MODERRKOWO!"));
         p.sendMessage(ColorUtils.color("&6> &7Discord serwera gdzie znajdują sie wszystkie informacje &c/discord"));
@@ -63,7 +64,7 @@ public class JoinQuitListener implements Listener {
                 continue;
             }
             gracze++;
-            if (admin.isOp()) {
+            if (admin.hasPermission("moderr.admin")) {
                 administracja++;
             }
         }
@@ -74,11 +75,11 @@ public class JoinQuitListener implements Listener {
                 + " \n&7Administracja online  &8» &6" + administracja
                 + " \n&7Gracze online &8» &6" + gracze
                 + " \n&7Rekord graczy &8» &6" + Main.getInstance().dataConfig.getInt("MaxPlayer")
-                + " \n "
-                + " \n&6----------------------------------"
                 + " \n ";
         String footer
-                = " \n&6----------------------------------"
+                = " \n&7Adres serwera: &amoderrkowo.pl"
+                + " \n&7Strona: &amoderr.pl"
+                + " \n&7Discord: &amoderr.pl/dc"
                 + " \n ";
         e.setPlayerListHeader(ColorUtils.color(header));
         e.setPlayerListFooter(ColorUtils.color(footer));

@@ -1440,12 +1440,12 @@ public class VillagerManager implements Listener {
         }, new ArrayList<VillagerShopItem>(){
             {
                 ItemStack item = new ItemStack(Material.ENCHANTED_BOOK, 1);
-                item.addUnsafeEnchantment(Main.getInstance().hammerEnch, 1);
+                item.addUnsafeEnchantment(Main.getInstance().hammerEnchantment, 1);
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-                meta.addStoredEnchant(Main.getInstance().hammerEnch, 1, true);
+                meta.addStoredEnchant(Main.getInstance().hammerEnchantment, 1, true);
                 meta.setLore(new ArrayList<String>(){
                     {
-                        add(ColorUtils.color("&7" + Main.getInstance().hammerEnch.getName()));
+                        add(ColorUtils.color("&7" + Main.getInstance().hammerEnchantment.getName()));
                     }
                 });
                 item.setItemMeta(meta);
@@ -2314,7 +2314,6 @@ public class VillagerManager implements Listener {
                                 boolean isEmpty = true;
                                 for (ItemStack items : p.getInventory().getContents()) {
                                     if(items != null) {
-                                        isEmpty = false;
                                         break;
                                     }
                                 }

@@ -36,14 +36,9 @@ import java.util.function.Supplier;
 
 public class PaySign implements Listener {
 
-
-    public String paySignPrefix = "[Sprzedaz]";
-    public String paySignPrefixColor = ColorUtils.color("&8[&aSprzedaz&8]");
-    // [Sprzedaz]
-    // MODERR
-    // 10
-
-    ArrayList<Block> blocks = new ArrayList<>();
+    public final String paySignPrefix = "[Sprzedaz]";
+    public final String paySignPrefixColor = ColorUtils.color("&8[&aSprzedaz&8]");
+    private final ArrayList<Block> Blocks = new ArrayList<>();
 
     @EventHandler
     public void buy(PlayerInteractEvent e){
@@ -98,7 +93,7 @@ public class PaySign implements Listener {
                                 u2 = ModerrkowoDatabase.getInstance().getUserManager().getUser(Objects.requireNonNull(Bukkit.getPlayer(nickname)).getUniqueId());
                                 u2.getBank().money += kwota;
                                 u.getBank().money -= kwota;
-                                u.getPlayer().sendMessage(ColorUtils.color("&9PaySign &6> &c- " + ChatUtil.getMoney(kwota)));
+                                Objects.requireNonNull(u.getPlayer()).sendMessage(ColorUtils.color("&9PaySign &6> &c- " + ChatUtil.getMoney(kwota)));
                             } catch (UserNotLoaded userNotLoaded) {
                                 userNotLoaded.printStackTrace();
                             }
@@ -107,7 +102,7 @@ public class PaySign implements Listener {
                                 @Override
                                 public void onDone() {
                                     u.getBank().money -= kwota;
-                                    u.getPlayer().sendMessage(ColorUtils.color("&9PaySign &6> &c- " + ChatUtil.getMoney(kwota)));
+                                    Objects.requireNonNull(u.getPlayer()).sendMessage(ColorUtils.color("&9PaySign &6> &c- " + ChatUtil.getMoney(kwota)));
                                 }
 
                                 @Override
@@ -169,7 +164,6 @@ public class PaySign implements Listener {
             }
         }
     }
-
     @EventHandler
     public void onSignChange(SignChangeEvent event){
         Player p = event.getPlayer();
@@ -185,7 +179,7 @@ public class PaySign implements Listener {
                     p.sendMessage(ColorUtils.color("&cPodaj kwotę!"));
                     event.setCancelled(true);
                 }else{
-                    int kwota = 0;
+                    int kwota;
                     try {
                         kwota = Integer.parseInt(Objects.requireNonNull(event.getLine(2)));
                     } catch (NumberFormatException e) {
@@ -203,12 +197,9 @@ public class PaySign implements Listener {
             }
         }
     }
-
-
     public static float clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
     }
-
     public BlockFace getFacing(Sign sign) {
         BlockData blockData = sign.getBlock().getBlockData();
         Material material = blockData.getMaterial();
@@ -221,7 +212,6 @@ public class PaySign implements Listener {
             throw new IllegalStateException("Invalid block material: " + material);
         }
     }
-
     private void updateBaseBlockNeighbors(Block block) {
         BlockData realBlockData = block.getBlockData();
         Material material = realBlockData.getMaterial().equals(Material.BARRIER)
@@ -231,19 +221,14 @@ public class PaySign implements Listener {
         block.setBlockData(material.createBlockData(), false);
         block.setBlockData(realBlockData, true);
     }
-
     public Block getBaseBlock(Sign sign) {
         return sign.getBlock().getRelative(this.getFacing(sign).getOppositeFace());
     }
-
-
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void cancelPhysics(BlockPhysicsEvent event) {
-        if (blocks.contains(event.getBlock())) {
+        if (Blocks.contains(event.getBlock())) {
             event.setCancelled(true);
         }
     }
-
 
 }

@@ -1,5 +1,14 @@
 #ServerName
 servername: "<gradient:#FD4F1D:#FCE045>Moderrkowo"
+#Time Vote
+time-to-vote: 15
+vote-delay: 10
+disable-command: true
+#Discord
+discord-token: "token"
+#motd
+motd-first: "&8[1.16] &e⚔ &6Moderrkowo &e⚔ &8[1.16]"
+motd-secound: "&aTrwają testy"
 #SpawnData
 SpawnWorld: "world"
 SpawnX: 0

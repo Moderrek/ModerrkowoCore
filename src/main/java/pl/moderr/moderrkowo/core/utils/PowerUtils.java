@@ -148,7 +148,7 @@ public class PowerUtils {
 
 	// This method returns a list of surrounding (3x3) blocks given a block face and target block
 	public static ArrayList<Block> getSurroundingBlocks(BlockFace blockFace, Block targetBlock) {
-		ArrayList<Block> blocks = new ArrayList<Block>();
+		ArrayList<Block> blocks = new ArrayList<>();
 		World world = targetBlock.getWorld();
 
 		int x, y, z;

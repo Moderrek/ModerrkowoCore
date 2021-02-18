@@ -22,8 +22,7 @@ public class TopkaCommand implements CommandExecutor {
 
     final String invName = ColorUtils.color("&6Ranking graczy");
     public Inventory getInventory(){
-        Inventory inv = Bukkit.createInventory(null, 9, invName);
-        return inv;
+        return Bukkit.createInventory(null, 9, invName);
     }
 
 }

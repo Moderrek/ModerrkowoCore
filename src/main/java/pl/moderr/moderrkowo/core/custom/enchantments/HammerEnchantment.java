@@ -1,7 +1,6 @@
 package pl.moderr.moderrkowo.core.custom.enchantments;
 
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,7 +16,6 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
@@ -40,7 +38,7 @@ public class HammerEnchantment extends Enchantment implements Listener {
         if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)){
             return;
         }
-        if(e.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Main.getInstance().hammerEnch)){
+        if(e.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Main.getInstance().hammerEnchantment)){
             for(Block b : PowerUtils.getSurroundingBlocks(Objects.requireNonNull(getBlockFace(e.getPlayer())), e.getBlock())){
                 if(b.getType() == e.getBlock().getType()){
                     b.breakNaturally(e.getPlayer().getInventory().getItemInMainHand());
@@ -54,9 +52,9 @@ public class HammerEnchantment extends Enchantment implements Listener {
     public void interact(PlayerInteractEvent e){
         if(e.getItem() != null){
             if(e.getItem().getItemMeta().hasLore()){
-                if(Objects.requireNonNull(e.getItem().getLore()).contains(ColorUtils.color("&7" + Main.getInstance().hammerEnch.getName()))){
-                    if(!e.getItem().containsEnchantment(Main.getInstance().hammerEnch)){
-                        e.getItem().addUnsafeEnchantment(Main.getInstance().hammerEnch, 1);
+                if(Objects.requireNonNull(e.getItem().getLore()).contains(ColorUtils.color("&7" + Main.getInstance().hammerEnchantment.getName()))){
+                    if(!e.getItem().containsEnchantment(Main.getInstance().hammerEnchantment)){
+                        e.getItem().addUnsafeEnchantment(Main.getInstance().hammerEnchantment, 1);
                     }
                 }
             }
@@ -70,19 +68,19 @@ public class HammerEnchantment extends Enchantment implements Listener {
         if(first == null || secound == null){
             return;
         }
-        if(e.getInventory().getFirstItem().getType() == Material.DIAMOND_PICKAXE || e.getInventory().getFirstItem().getType() == Material.NETHERITE_PICKAXE){
+        if(Objects.requireNonNull(e.getInventory().getFirstItem()).getType() == Material.DIAMOND_PICKAXE || e.getInventory().getFirstItem().getType() == Material.NETHERITE_PICKAXE){
             if(e.getInventory().getResult() == null) {
-                if (secound.getItemMeta().hasEnchant(Main.getInstance().hammerEnch)) {
+                if (secound.getItemMeta().hasEnchant(Main.getInstance().hammerEnchantment)) {
                     if (secound.getType() == Material.ENCHANTED_BOOK) {
-                        ItemStack result = first.clone();;
-                        result.addUnsafeEnchantment(Main.getInstance().hammerEnch, 1);
+                        ItemStack result = first.clone();
+                        result.addUnsafeEnchantment(Main.getInstance().hammerEnchantment, 1);
                         ItemMeta meta = result.getItemMeta();
                         ArrayList<String> lore = new ArrayList<>();
                         if(result.getItemMeta().getLore() != null){
                             lore = (ArrayList<String>) meta.getLore();
                         }
                         assert lore != null;
-                        lore.add(ColorUtils.color("&7" + Main.getInstance().hammerEnch.getName()));
+                        lore.add(ColorUtils.color("&7" + Main.getInstance().hammerEnchantment.getName()));
                         meta.setLore(lore);
                         result.setItemMeta(meta);
                         e.getInventory().setRepairCost(30);
@@ -170,7 +168,7 @@ public class HammerEnchantment extends Enchantment implements Listener {
     }
 
     @Override
-    public boolean conflictsWith(Enchantment other) {
+    public boolean conflictsWith(@NotNull Enchantment other) {
         return other == Enchantment.SILK_TOUCH;
     }
 

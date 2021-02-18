@@ -24,7 +24,7 @@ public class TNTListener implements Listener {
     public void onExplode(EntityExplodeEvent e) {
         if (e.getEntityType() == EntityType.PRIMED_TNT) {
             e.setCancelled(true);
-            e.getEntity().getWorld().createExplosion(e.getLocation(), 10);
+            e.getEntity().getWorld().createExplosion(e.getLocation(), 7);
             replaceSphere(e.getEntity().getLocation(), 8, false, Material.AIR, Material.FIRE, 10);
             replaceSphere(e.getEntity().getLocation(), 5, false, Material.STONE, Material.COBBLESTONE, 3);
             replaceSphere(e.getEntity().getLocation(), 5, false, Material.STONE, Material.ANDESITE, 6);
@@ -40,7 +40,7 @@ public class TNTListener implements Listener {
         }
         if (e.getEntityType() == EntityType.MINECART_TNT) {
             e.setCancelled(true);
-            e.getEntity().getWorld().createExplosion(e.getLocation(), 15);
+            e.getEntity().getWorld().createExplosion(e.getLocation(), 5);
             replaceSphere(e.getEntity().getLocation(), 8, false, Material.AIR, Material.FIRE, 3);
             replaceSphere(e.getEntity().getLocation(), 5, false, Material.STONE, Material.COBBLESTONE, 6);
             replaceSphere(e.getEntity().getLocation(), 5, false, Material.STONE, Material.ANDESITE, 12);
@@ -49,7 +49,6 @@ public class TNTListener implements Listener {
             e.getEntity().getWorld().spawnParticle(Particle.SMOKE_LARGE, e.getLocation(), 100, 2, 2, 2, 0.1f);
         }
     }
-
     @EventHandler
     public void onCraft(PrepareItemCraftEvent e) {
         if (e.getInventory().getResult() == null) {
@@ -62,14 +61,12 @@ public class TNTListener implements Listener {
             }
         }
     }
-
     @EventHandler
     public void placeTnt(BlockPlaceEvent e) {
         if (e.getBlockPlaced().getType() == Material.TNT) {
             e.getBlockPlaced().setMetadata("tnt", new FixedMetadataValue(Main.getInstance(), "tnt"));
         }
     }
-
     @EventHandler
     public void breakTnt(BlockBreakEvent e) {
         if (!e.isCancelled()) {
@@ -77,7 +74,7 @@ public class TNTListener implements Listener {
                 if (!e.getBlock().hasMetadata("tnt")) {
                     e.setCancelled(true);
                     e.getBlock().setType(Material.AIR);
-                    e.getPlayer().sendMessage(ColorUtils.color("&cNie można zbierać tnt wygenerowanego przez mape!"));
+                    e.getPlayer().sendMessage(ColorUtils.color("&cNie można zbierać tnt wygenerowanego przez świat!"));
                 }
             }
         }
@@ -111,7 +108,6 @@ public class TNTListener implements Listener {
 
         return circleBlocks;
     }
-
     public static void replaceSphere(Location centerBlock, int radius, boolean hollow, Material from, Material to, int percent) {
 
         List<Location> circleBlocks = new ArrayList<>();
@@ -144,7 +140,6 @@ public class TNTListener implements Listener {
         }
 
     }
-
     public static List<Location> replaceSphereSolidBlocks(Location centerBlock, int radius, boolean hollow, Material to, int percent) {
 
         List<Location> circleBlocks = new ArrayList<>();
@@ -178,7 +173,6 @@ public class TNTListener implements Listener {
 
         return circleBlocks;
     }
-
     public void cylinder(Location loc, Material mat, int r) {
         int cx = loc.getBlockX();
         int cy = loc.getBlockY();

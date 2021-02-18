@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.listeners;
+package pl.moderr.moderrkowo.core.custom.fishing;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

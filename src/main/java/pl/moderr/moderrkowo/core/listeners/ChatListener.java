@@ -1,12 +1,10 @@
 package pl.moderr.moderrkowo.core.listeners;
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.commands.admin.ChatCommand;
-import pl.moderr.moderrkowo.core.utils.ChatUtil;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 
 public class ChatListener implements Listener {
@@ -19,10 +17,12 @@ public class ChatListener implements Listener {
             return;
         }
         e.setMessage(e.getMessage().replace("%", "%%"));
-        if (e.getPlayer().isOp()) {
+        if (e.getPlayer().hasPermission("moderr.admin")) {
             e.setMessage(ColorUtils.color(e.getMessage()));
+            e.setFormat(ColorUtils.color("&6" + e.getPlayer().getName() + ": &e") + e.getMessage());
+        }else{
+            e.setFormat(ColorUtils.color("&7" + e.getPlayer().getName() + ": &f") + e.getMessage());
         }
-        e.setFormat(ChatUtil.getChatName(e.getPlayer()) + ChatColor.RESET + " " + e.getMessage());
     }
 
 }

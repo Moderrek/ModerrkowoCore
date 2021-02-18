@@ -54,7 +54,13 @@ public class ChatUtil {
                 prefix.append(ColorUtils.color("&cADM "));
             }
             if (u.getRank().equals("DIAMENT")) {
-                prefix.append(ColorUtils.color("&b&lDIAMENT"));
+                prefix.append(ColorUtils.color("&b&lDIAMENT "));
+            }
+            if (u.getRank().equals("ZELAZO")) {
+                prefix.append(ColorUtils.color("&7&lZELAZO "));
+            }
+            if (u.getRank().equals("ZLOTO")) {
+                prefix.append(ColorUtils.color("&6&lZLOTO "));
             }
         } catch (UserNotLoaded userNotLoaded) {
             userNotLoaded.printStackTrace();

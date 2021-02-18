@@ -23,14 +23,10 @@ public class DatabaseListener implements ModerrDatabaseListener {
     @Override
     public void onLoadUser(User user) {
         if (user.getPlayer() != null) {
-            user.getPlayer().setPlayerListName(ChatUtil.getChatName(user.getPlayer()));
+            user.getPlayer().setPlayerListName(ColorUtils.color("&8" + user.getName()));
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getUUID());
             String prefix = ChatUtil.getOnlyPrefix(user.getPlayer()) + ColorUtils.color("&e");
-            if(offlinePlayer == null){
-                System.out.println(user.getName() + " >> OfflinePlayer is null");
-            }else{
-                NameManagerAPI.setNametag(offlinePlayer, prefix, "");
-            }
+            NameManagerAPI.setNametag(offlinePlayer, prefix, "");
         }
         ModerrkowoLog.LogAdmin("Załadowano gracza pomyślnie " + user.getName());
     }

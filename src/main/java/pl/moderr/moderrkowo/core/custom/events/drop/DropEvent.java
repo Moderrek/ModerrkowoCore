@@ -96,11 +96,10 @@ public class DropEvent implements Listener {
                     chest.setCustomName(ColorUtils.color("&c&lZrzut zasobów"));
                     chest.update();
                     final Random rnd = new Random();
-                    final WeightedList<DropItem> drop = DropEvent.this.dropItemWeightedListOVERWORLD;
                     for (int i = 0; i != chest.getInventory().getSize(); ++i) {
                         final int chance = rnd.nextInt(100);
                         if (chance <= 50) {
-                            final DropItem item = drop.get(rnd);
+                            final DropItem item = DropEvent.this.dropItemWeightedListOVERWORLD.get(rnd);
                             ItemStack is;
                             if (item.isRandom) {
                                 is = new ItemStack(item.mat, DropEvent.this.getRandomNumberInRange(item.min, item.max));

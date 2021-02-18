@@ -3,6 +3,7 @@ package pl.moderr.moderrkowo.core.listeners;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import pl.moderr.moderrkowo.core.Main;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 
 public class MotdListener implements Listener {
@@ -12,9 +13,9 @@ public class MotdListener implements Listener {
     @EventHandler
     public void ping(PaperServerListPingEvent e) {
         e.setMaxPlayers(e.getNumPlayers() + 1);
-        e.setVersion("1.16.x");
-        String line1 = ColorUtils.color("&e⚔ &6Moderrkowo &e⚔ &eNajlepszy survival 1.16");
-        String line2 = ColorUtils.color("&9> &eNowe questy &9- &6XP z roślin &9<");
+        e.setVersion("1.16.5");
+        String line1 = ColorUtils.color(Main.getInstance().getConfig().getString("motd-first"));
+        String line2 = ColorUtils.color(Main.getInstance().getConfig().getString("motd-secound"));
         e.setMotd(centerText(line1) + "\n" + centerText(line2));
     }
 

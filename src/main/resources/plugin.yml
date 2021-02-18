@@ -1,5 +1,5 @@
 name: ModerrkowoCore
-version: 1.0
+version: ${project.version}
 main: pl.moderr.moderrkowo.core.Main
 api-version: 1.16
 authors: [MODERR]
@@ -108,10 +108,19 @@ commands:
     permission: moderr.player
   aquest:
     permission: moderr.admin
+  npc:
+    permission: moderr.admin
+  timevote:
+    aliases: [tv,czas]
 permissions:
   moderr.admin:
     default: op
   moderr.player:
     default: true
+  moderrkowo.rank.zelazo:
+    default: false
+  moderrkowo.rank.zloto:
+    default: false
+    children: [moderrkowo.rank.zelazo]
   moderr.cuboids.admin:
     default: op
