@@ -112,6 +112,18 @@ commands:
     permission: moderr.admin
   timevote:
     aliases: [tv,czas]
+  jsonitem:
+    permission: moderr.admin
+  abadge:
+    permission: moderr.admin
+  badge:
+    aliases: [odznaka,odznaki]
+    permission: moderr.player
+  wyplac:
+    aliases: [banknot,withdraw]
+    permission: moderr.player
+  aenchant:
+    permission: moderr.admin
 permissions:
   moderr.admin:
     default: op

@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -11,12 +12,90 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ItemStackUtils {
+
+    public static ItemStack addEnchantment(ItemStack item, Enchantment enchantment, int level){
+        ItemStack i = item.clone();
+        if(Main.getInstance().customEnchants.containsKey(enchantment.getName().replace(" ", "_"))){
+            System.out.println("IS CUSTOM");
+            i.addUnsafeEnchantment(Main.getInstance().customEnchants.get(enchantment.getName().replace(" ", "_")), level);
+            System.out.println("ENCHANTED CUSTOM");
+            if(i.getLore() == null){
+                i.setLore(new ArrayList<String>(){
+                    {
+                        add(ColorUtils.color("&7" + enchantment.getName() + " " + toRoman(level)));
+                    }
+                });
+            }else{
+                i.setLore(new ArrayList<String>(i.getLore()){
+                    {
+                        add(ColorUtils.color("&7" + enchantment.getName() + " " + toRoman(level)));
+                    }
+                });
+            }
+        }else{
+            System.out.println("ISN'T CUSTOM");
+            i.addEnchantment(enchantment, level);
+            System.out.println("ENCHANTED NORMAL");
+        }
+        return i;
+    }
+    private static String toRoman(int n) {
+        String[] romanNumerals = { "M",  "CM", "D", "CD", "C", "XC", "L",  "X", "IX", "V", "I" };
+        int[] romanNumeralNums = {  1000, 900, 500,  400 , 100,  90,  50,   10,    9,   5,   1 };
+        StringBuilder finalRomanNum = new StringBuilder();
+
+        for (int i = 0; i < romanNumeralNums.length; i ++) {
+            int currentNum = n /romanNumeralNums[i];
+            if (currentNum==0) {
+                continue;
+            }
+
+            for (int j = 0; j < currentNum; j++) {
+                finalRomanNum.append(romanNumerals[i]);
+            }
+
+            n = n%romanNumeralNums[i];
+        }
+        return finalRomanNum.toString();
+    }
+    public static ItemStack generateEnchantmentBook(Map<Enchantment, Integer> enchantments){
+        ItemStack itemStack = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
+        for(Enchantment enchantment : enchantments.keySet()){
+            if(Main.getInstance().customEnchants.containsKey(enchantment.getName().replace(" ", "_"))){
+                meta.addStoredEnchant(enchantment, enchantments.get(enchantment), true);
+                if(meta.getLore() == null){
+                    System.out.println("is null");
+                    meta.setLore(new ArrayList<String>(){
+                        {
+                            add(ColorUtils.color("&7" + enchantment.getName() + " " + toRoman(enchantments.get(enchantment))));
+                        }
+                    });
+                }else{
+                    System.out.println("isn't null");
+                    meta.setLore(new ArrayList<String>(meta.getLore()){
+                        {
+                            add(ColorUtils.color("&7" + enchantment.getName() + " " + toRoman(enchantments.get(enchantment))));
+                        }
+                    });
+                }
+            }else{
+                meta.addStoredEnchant(enchantment, enchantments.get(enchantment), true);
+            }
+        }
+        itemStack.setItemMeta(meta);
+        return itemStack;
+    }
+    public static void addItemStackToPlayer(Player player, ItemStack itemStack){
+        if(player.getInventory().firstEmpty() == -1){
+            player.getLocation().getWorld().dropItem(player.getLocation(), itemStack);
+        }else{
+            player.getInventory().addItem(itemStack);
+        }
+    }
 
     public static ItemStack createGuiItem(Material material, int count, String name, String... lore) {
         ItemStack item = new ItemStack(material, count);

@@ -1,5 +1,10 @@
 package pl.moderr.moderrkowo.core.custom.events.drop;
 
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -70,14 +75,17 @@ public class DropEvent implements Listener {
             if(Objects.requireNonNull(chest.getCustomName()).equalsIgnoreCase(ColorUtils.color("&c&lZrzut zasobów"))){
                 try {
                     User u = ModerrkowoDatabase.getInstance().getUserManager().getUser(e.getPlayer().getUniqueId());
-                    int kwota = RandomUtils.getRandomInt(100,10000);
+                    int kwota = RandomUtils.getRandomInt(100,20000);
                     u.getBank().money += kwota;
                     e.getPlayer().sendMessage(ColorUtils.color("&9Drop &6> &a+ " + ChatUtil.getMoney(kwota)));
-                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &7Zrzut zasobów został otworzony!"));
+                    net.md_5.bungee.api.chat.TextComponent no = new TextComponent(ColorUtils.color("&8[!] &7Zrzut zasobów został otworzony"));
+                    no.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color("&aOtworzony na &2X: " + chest.getLocation().getBlockX() + " Z: " + chest.getLocation().getBlockZ() + " &aprzez " + e.getPlayer().getName()))));
+                    no.setColor(ChatColor.RED);
+                    Main.getInstance().getServer().broadcast(new ComponentBuilder().append(no).create());
                     Objects.requireNonNull(Bukkit.getWorld("world")).spawnParticle(Particle.TOTEM,chest.getLocation().getBlockX(),chest.getLocation().getBlockY(),chest.getLocation().getBlockZ(),20,1,1,1,0.1);
-                    chest.setCustomName(ColorUtils.color("&eOtworzony zrzut przez &2" + e.getPlayer().getName()));
+                    chest.setCustomName(ColorUtils.color("&aOtworzony zrzut przez &2" + e.getPlayer().getName()));
                     Chest chestBlock = (Chest) chest.getBlock().getState();
-                    chestBlock.setCustomName(ColorUtils.color("&eOtworzony zrzut przez &2" + e.getPlayer().getName()));
+                    chestBlock.setCustomName(ColorUtils.color("&aOtworzony zrzut przez &2" + e.getPlayer().getName()));
                     chestBlock.update();
                 } catch (UserNotLoaded userNotLoaded) {
                     userNotLoaded.printStackTrace();
@@ -110,7 +118,7 @@ public class DropEvent implements Listener {
                             chest.getInventory().setItem(i, is);
                         }
                     }
-                    Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &7Zrzut zasobów spadł na mapę! &8(&7x " + Math.floor(loc.getX()) + " z " + Math.floor(loc.getZ()) + "&8)"));
+                    Bukkit.broadcastMessage(ColorUtils.color("&8[!] &7Zrzut zasobów spadł na mapę! &8(&7x " + Math.floor(loc.getX()) + " z " + Math.floor(loc.getZ()) + "&8)"));
                     Objects.requireNonNull(Bukkit.getWorld("world")).strikeLightningEffect(Objects.requireNonNull(chest.getLocation()));
                 }
             }.runTaskLater(Main.getInstance(), 1L);

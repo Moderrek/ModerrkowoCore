@@ -1,6 +1,9 @@
 package pl.moderr.moderrkowo.core.commands.admin;
 
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,6 +18,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class VanishCommand implements CommandExecutor {
+
+
+    public final static BossBar bossBar = Bukkit.createBossBar(ColorUtils.color("&9>>> JESTEŚ UKRYTY <<<"), BarColor.BLUE, BarStyle.SOLID);
 
     public final static ArrayList<UUID> hidden = new ArrayList<>();
 
@@ -33,6 +39,7 @@ public class VanishCommand implements CommandExecutor {
                 p.sendMessage(ColorUtils.color("&cZostałeś odkryty"));
                 Bukkit.broadcastMessage(JoinQuitListener.getJoinMessage(p));
                 ModerrkowoLog.LogAdmin(p.getName() + " został odkryty");
+                bossBar.removePlayer(p);
             } else {
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     if (players.isOp()) {
@@ -44,6 +51,7 @@ public class VanishCommand implements CommandExecutor {
                 p.sendMessage(ColorUtils.color("&aZostałeś ukryty"));
                 Bukkit.broadcastMessage(JoinQuitListener.getQuitMessage(p));
                 ModerrkowoLog.LogAdmin(p.getName() + " został ukryty");
+                bossBar.addPlayer(p);
             }
         }
         return false;

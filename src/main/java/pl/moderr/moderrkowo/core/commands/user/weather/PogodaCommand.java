@@ -74,11 +74,11 @@ public class PogodaCommand implements CommandExecutor, Listener, TabCompleter {
                         i = 1;
                     }
                     p.sendMessage(ColorUtils.color("&aZagłosowano pomyślnie! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
-                    Bukkit.broadcastMessage(ColorUtils.color("&6" + p.getName() + " &ezagłosował na zmianę pogody! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
+                    Bukkit.broadcastMessage(ColorUtils.color("&6" + p.getName() + " &7zagłosował na zmianę pogody! " + "&8(&a" + votedList.size() + "&8/&7" + i + "&8)"));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                     if (votedList.size() >= i) {
                         Objects.requireNonNull(Bukkit.getWorld("world")).setStorm(false);
-                        Bukkit.broadcastMessage(ColorUtils.color("&8[&e*&8] &ePrzegłosowano na zmianę pogody! Pogoda została zmieniona."));
+                        Bukkit.broadcastMessage(ColorUtils.color("&8[!] &7Przegłosowano na zmianę pogody! Pogoda została zmieniona."));
                         rain = false;
                         votedList = new ArrayList<>();
                     }
@@ -98,9 +98,14 @@ public class PogodaCommand implements CommandExecutor, Listener, TabCompleter {
         if (e.getWorld() != Bukkit.getWorld("world")) {
             return;
         }
-        votedList = new ArrayList<>();
-        //Bukkit.broadcastMessage(ColorUtils.color("&eRozpoczęto głosowanie na zmianę pogody! &f/pogoda &eaby zagłosować."));
-        rain = e.getWorld().hasStorm();
+        if(e.toWeatherState()){
+            votedList = new ArrayList<>();
+            Bukkit.broadcastMessage(ColorUtils.color("&8[!] &7Rozpoczęto głosowanie na zmianę pogody! &7/pogoda &7aby zagłosować."));
+            rain = true;
+        }else{
+            votedList = new ArrayList<>();
+            rain = false;
+        }
     }
 
     @Nullable

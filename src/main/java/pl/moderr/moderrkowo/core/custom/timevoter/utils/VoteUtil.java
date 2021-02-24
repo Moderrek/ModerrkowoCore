@@ -55,13 +55,23 @@ public class VoteUtil {
             no.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color("&cZagłosuj na NIE"))));
             no.setColor(ChatColor.RED);
 
-            Main.getInstance().getServer().broadcastMessage(
-                    ColorUtils.color(
-                    "&8[!] &6" + player.getName() + " &7właśnie rozpoczął głosowanie o dzień" +
-                    "\nMasz &6" + timeVoter.timeToVote + " &7sekund na głosowanie." +
-                    "\nKliknij TAK lub NIE albo połóż się spać aby zagłosować na TAK"
-                    )
-            );
+            if(world.getTime() >= 12600L){
+                Main.getInstance().getServer().broadcastMessage(
+                        ColorUtils.color(
+                                "&8[!] &6" + player.getName() + " &7właśnie rozpoczął głosowanie o &e☀ dzień&7" +
+                                        "\nMasz &6" + timeVoter.timeToVote + " &7sekund na głosowanie." +
+                                        "\nKliknij TAK lub NIE albo połóż się spać aby zagłosować na TAK"
+                        )
+                );
+            }else{
+                Main.getInstance().getServer().broadcastMessage(
+                        ColorUtils.color(
+                                "&8[!] &6" + player.getName() + " &7właśnie rozpoczął głosowanie o &9⭐ noc&7" +
+                                        "\nMasz &6" + timeVoter.timeToVote + " &7sekund na głosowanie." +
+                                        "\nKliknij TAK lub NIE albo połóż się spać aby zagłosować na TAK"
+                        )
+                );
+            }
             Main.getInstance().getServer().broadcast(
                     new ComponentBuilder()
                             .append(yes)
@@ -81,7 +91,7 @@ public class VoteUtil {
                         Main.getInstance().getServer().broadcastMessage(
                                 ColorUtils.color(
                                         "&8[!] &aGłosowanie zostało zakończone sukcesem." +
-                                                "\n&7Cykl nocny zostanie pominięty."
+                                                "\n&7Cykl nocy zostanie pominięty."
                                 )
                         );
                     }else{

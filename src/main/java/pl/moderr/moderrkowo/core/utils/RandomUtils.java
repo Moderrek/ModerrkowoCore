@@ -16,9 +16,13 @@ public class RandomUtils {
         int X = rand.nextInt((rangeMax - rangeMin) + 1) + rangeMin;
         int Z = rand.nextInt((rangeMax - rangeMin) + 1) + rangeMin;
         int Y = world.getHighestBlockYAt(X, Z);
-
-
-        return new Location(world, X, Y, Z).add(0.5, 1, 0.5);
+        Location location;
+        if(world.getBlockAt(X,Y,Z).isLiquid() || !world.getBlockAt(X,Y,Z).isSolid()){
+            location = getRandom(world);
+        }else{
+            location = new Location(world, X, Y, Z).add(0.5, 1, 0.5);
+        }
+        return location;
     }
 
     public static int getRandomInt(int rangeMin, int rangeMax) {

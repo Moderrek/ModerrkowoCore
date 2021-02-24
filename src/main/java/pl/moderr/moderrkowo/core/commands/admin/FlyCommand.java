@@ -21,7 +21,7 @@ public class FlyCommand implements CommandExecutor {
                 if(p2 != null){
                     p2.setAllowFlight(!p2.getAllowFlight());
                     if(p2.getAllowFlight()){
-                        p.sendTitle(new Title(ColorUtils.color("&2" + p2.getName()), ColorUtils.color("&aMoże już latać")));
+                        p.sendTitle(ColorUtils.color("&2" + p2.getName()), ColorUtils.color("&aMoże już latać"));
                         p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
                         ModerrkowoLog.LogAdmin(ColorUtils.color("&6" + p.getName() + " &7włączył graczu &6" + p2.getName() + " &7latanie"));
                     }else{

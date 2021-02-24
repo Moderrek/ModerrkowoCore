@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
@@ -56,11 +55,7 @@ public class CuboidsManager {
             return null;
         }
         ItemStack item = new ItemStack(cuboidMaterial, count);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(cuboidDisplayName);
-        }
-        item.setItemMeta(meta);
+        item.setDisplayName(cuboidDisplayName);
         return item;
     }
 

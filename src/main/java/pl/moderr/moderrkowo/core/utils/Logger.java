@@ -19,7 +19,7 @@ public class Logger {
                 TextComponent tc = new TextComponent();
                 tc.setText(ColorUtils.color(String.format("&8[&9Pomoc&8] &7%s&8: &e%s", sender.getName(), message)));
                 tc.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ahelpop " + sender.getName() + " "));
-                tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color(String.format("&eOdpowiedz &a%s)", sender.getName())))));
+                tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ColorUtils.color(String.format("&eOdpowiedz &a%s", sender.getName())))));
                 p.spigot().sendMessage(tc);
                 numberOfAdmins++;
             }
@@ -30,6 +30,13 @@ public class Logger {
         return success;
     }
 
+    public static void logWorldManager(String worldName, String message){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            if(p.isOp()){
+                p.sendMessage(ColorUtils.color("&8[&9WM&8] &e" + worldName + " &8>> &e" + message));
+            }
+        }
+    }
     public static void logAdminChat(String message) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.isOp()) {

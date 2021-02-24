@@ -1,6 +1,5 @@
 package pl.moderr.moderrkowo.core.commands.admin;
 
-import com.destroystokyo.paper.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -29,11 +28,15 @@ public class AHelpopCommand implements CommandExecutor {
 
 
                         answerTo.sendMessage(" ");
-                        answerTo.sendMessage(ColorUtils.color(String.format("&8[&6ODP&8] &6%s&8: &e%s", p.getName(), answer)));
+                        answerTo.sendMessage(ColorUtils.color(String.format("&8[&9Pomoc&8] &7%s&8: &e%s", p.getName(), answer)));
                         answerTo.sendMessage(" ");
                         answerTo.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
-
-                        p.sendTitle(new Title(ColorUtils.color("&c&lModerrkowo"), ColorUtils.color("&eOdpowiedziano.")));
+                        for(Player player : Bukkit.getOnlinePlayers()){
+                            if(player.isOp()){
+                                player.sendMessage(ColorUtils.color(String.format("&8[&9Pomoc&8] &7%s&8: &e%s", p.getName(), answer)));
+                            }
+                        }
+                        //p.sendTitle(new Title(ColorUtils.color("&c&lModerrkowo"), ColorUtils.color("&eOdpowiedziano.")));
                         p.sendMessage(ColorUtils.color("&aWysłano odpowiedź."));
                         p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                         return true;

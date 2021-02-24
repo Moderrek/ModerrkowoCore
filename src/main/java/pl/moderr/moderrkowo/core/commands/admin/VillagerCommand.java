@@ -17,11 +17,11 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pl.moderr.moderrkowo.core.Main;
+import pl.moderr.moderrkowo.core.custom.villagers.data.VillagerData;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.Logger;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 import pl.moderr.moderrkowo.core.utils.RandomUtils;
-import pl.moderr.moderrkowo.core.custom.villagers.data.VillagerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,14 +60,11 @@ public class VillagerCommand implements CommandExecutor, TabCompleter, Listener 
     public void click(PlayerInteractEntityEvent e) {
         Player p = e.getPlayer();
         Entity entity = e.getRightClicked();
-
         if (entity.getType() == EntityType.VILLAGER) {
             if (entity.isCustomNameVisible()) {
                 if (entity.getCustomName() == null) {
                     return;
                 }
-
-
                 if (entity.getCustomName().equals(ColorUtils.color("&aLosowy teleport"))) {
                     p.teleport(RandomUtils.getRandom(p.getWorld()));
                     p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);

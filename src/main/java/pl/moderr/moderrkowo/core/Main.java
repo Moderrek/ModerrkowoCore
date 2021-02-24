@@ -1,22 +1,17 @@
 package pl.moderr.moderrkowo.core;
 
-import net.minecraft.server.v1_16_R3.PacketPlayOutWorldParticles;
-import net.minecraft.server.v1_16_R3.Particles;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
 import pl.moderr.moderrkowo.core.commands.admin.*;
+import pl.moderr.moderrkowo.core.commands.user.BadgeCommand;
 import pl.moderr.moderrkowo.core.commands.user.information.*;
 import pl.moderr.moderrkowo.core.commands.user.messages.HelpopCommand;
 import pl.moderr.moderrkowo.core.commands.user.messages.MessageCommand;
@@ -28,16 +23,17 @@ import pl.moderr.moderrkowo.core.custom.PaySign;
 import pl.moderr.moderrkowo.core.custom.antylogout.AntyLogoutManager;
 import pl.moderr.moderrkowo.core.custom.discord.DiscordManager;
 import pl.moderr.moderrkowo.core.custom.enchantments.HammerEnchantment;
+import pl.moderr.moderrkowo.core.custom.enchantments.MultihookEnchantment;
 import pl.moderr.moderrkowo.core.custom.events.drop.DropEvent;
 import pl.moderr.moderrkowo.core.custom.fishing.FishListener;
+import pl.moderr.moderrkowo.core.custom.items.FireballManager;
+import pl.moderr.moderrkowo.core.custom.lootchests.ShulkerDropBox;
 import pl.moderr.moderrkowo.core.custom.npc.NPCManager;
+import pl.moderr.moderrkowo.core.custom.spawn.SpawnManager;
 import pl.moderr.moderrkowo.core.custom.timevoter.TimeVoter;
 import pl.moderr.moderrkowo.core.custom.villagers.VillagerManager;
 import pl.moderr.moderrkowo.core.custom.villagers.data.*;
-import pl.moderr.moderrkowo.core.economy.PrzelejCommand;
-import pl.moderr.moderrkowo.core.economy.RynekCommand;
-import pl.moderr.moderrkowo.core.economy.RynekManager;
-import pl.moderr.moderrkowo.core.economy.TopkaCommand;
+import pl.moderr.moderrkowo.core.economy.*;
 import pl.moderr.moderrkowo.core.listeners.*;
 import pl.moderr.moderrkowo.core.utils.ChatUtil;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
@@ -55,7 +51,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Random;
 
 public final class Main extends JavaPlugin {
 
@@ -68,12 +67,17 @@ public final class Main extends JavaPlugin {
     public VillagerManager villagerManager;
     public TimeVoter timeVoter;
     public DiscordManager discordManager;
+    public SpawnManager spawn;
+    public WithdrawCommand banknot;
+    public ShulkerDropBox shulkerDropBox;
     // Listeners
     public DatabaseListener instanceDatabaseListener;
     // Events
     public DropEvent dropEvent;
     // Enchantments
+    public HashMap<String, Enchantment> customEnchants = new HashMap<>();
     public HammerEnchantment hammerEnchantment = null;
+    public MultihookEnchantment multihookEnchantment = null;
     // Files
     public File dataFile = new File(getDataFolder(), "data.yml");
     public FileConfiguration dataConfig;
@@ -95,11 +99,20 @@ public final class Main extends JavaPlugin {
         Logger.logPluginMessage("Wczytano config");
         //</editor-fold> Config
 
+        //<editor-fold> Enchantments
         hammerEnchantment = new HammerEnchantment();
         Bukkit.getPluginManager().registerEvents(hammerEnchantment, this);
         loadEnchantments(hammerEnchantment);
         Logger.logPluginMessage("Załadowano Szeroki Trzon");
+        multihookEnchantment = new MultihookEnchantment();
+        Bukkit.getPluginManager().registerEvents(multihookEnchantment, this);
+        loadEnchantments(multihookEnchantment);
+        Logger.logPluginMessage("Załadowano " + multihookEnchantment.getName());
+        //</editor-fold> Enchantments
 
+        banknot = new WithdrawCommand();
+        shulkerDropBox = new ShulkerDropBox();
+        // Load Async Listeners and Commands
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 
         //<editor-fold> Listeners
@@ -120,6 +133,10 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
         Bukkit.getPluginManager().registerEvents(new FishListener(), this);
         Bukkit.getPluginManager().registerEvents(new PaySign(), this);
+        BadgeCommand badgeCommand = new BadgeCommand();
+        Bukkit.getPluginManager().registerEvents(badgeCommand, this);
+        Bukkit.getPluginManager().registerEvents(banknot, this);
+        Bukkit.getPluginManager().registerEvents(new FireballManager(), this);
         Logger.logPluginMessage("Wczytano listeners");
         //</editor-fold> Listeners
 
@@ -162,13 +179,18 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("zmiany")).setExecutor(new ZmianyCommand());
         Objects.requireNonNull(getCommand("aquest")).setExecutor(new QuestCommand());
         Objects.requireNonNull(getCommand("npc")).setExecutor(new NPCManager());
+        Objects.requireNonNull(getCommand("jsonitem")).setExecutor(new JsonItemCommand());
+        Objects.requireNonNull(getCommand("abadge")).setExecutor(new ABadgeCommand());
+        Objects.requireNonNull(getCommand("badge")).setExecutor(badgeCommand);
+        Objects.requireNonNull(getCommand("wyplac")).setExecutor(banknot);
+        Objects.requireNonNull(getCommand("aenchant")).setExecutor(new AEnchantment());
         Logger.logPluginMessage("Wczytano komendy");
-        });
         //</editor-fold> Commands
+        });
 
         //<editor-fold> AutoMessage
         ArrayList<String> message = new ArrayList<>();
-        message.add("&cPamiętajcie że to 2 dniowy okres testowy)");
+        /*message.add("&cPamiętajcie że to 2 dniowy okres testowy)");
         message.add("&cOkres testowy kończy się 26 lutego");
         message.add("&7Nowa edycja zaczyna się 26 lutego");
         message.add("&7Gracz może otrzymać przedmioty w celu testu!");
@@ -178,7 +200,7 @@ public final class Main extends JavaPlugin {
         message.add("&7Wszystko może być zbugowane/posiadać błędy");
         message.add("&7Celem testu jest wypuszczenie jak najbardziej dopracowanego pluginu");
         message.add("&7Wszystko co zdobędziecie w okresie testowym zostanie zrestartowane!");
-        message.add("&7Gdy zgłosicie chociaż jeden błąd otrzymacie na stałe odznakę \"Tester Edycji II\"");
+        message.add("&7Gdy zgłosicie chociaż jeden błąd otrzymacie na stałe odznakę \"Tester Edycji II\"");*/
         message.add("&7Więcej informacji niedługo");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             String messageS = message.get(new Random().nextInt(message.size()));
@@ -186,6 +208,8 @@ public final class Main extends JavaPlugin {
         }, 0, 20 * 60 * 2);
         Logger.logPluginMessage("Wczytano AutoMessage");
         //</editor-fold> AutoMessage
+
+        spawn = new SpawnManager(this);
 
         //<editor-fold> Data.yml
         if (!dataFile.exists()) {
@@ -211,6 +235,7 @@ public final class Main extends JavaPlugin {
        Logger.logPluginMessage("Wczytano villagerów");
 
        discordManager = new DiscordManager();
+       // Start Async Bot
        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
            try {
                discordManager.StartBot();
@@ -356,7 +381,6 @@ public final class Main extends JavaPlugin {
         //</editor-fold> Rynek
 
         timeVoter = new TimeVoter();
-
         Logger.logPluginMessage("Wczytano plugin [CORE] w &8(&a" + (System.currentTimeMillis() - start) + "ms&8)");
         Logger.logPluginMessage("Wczytano wersję pluginu 2.0");
         // END
@@ -374,8 +398,10 @@ public final class Main extends JavaPlugin {
             e.printStackTrace();
         }
         if (registered) {
-            Logger.logPluginMessage("Zarejestrowano " + enchantment.getKey());
+            Main.getInstance().customEnchants.put(enchantment.getName().replace(" ", "_"), enchantment);
+            Logger.logPluginMessage("Zarejestrowano " + enchantment.getKey() + " [" + enchantment.getName() + "]");
         }else{
+            Main.getInstance().customEnchants.put(enchantment.getName().replace(" ", "_"), enchantment);
             Logger.logPluginMessage("Wystąpił błąd przy rejestrowaniu " + enchantment.getKey());
         }
     }
@@ -400,28 +426,44 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        discordManager.EndBot();
-        timeVoter.Disable();
-        ModerrkowoDatabase.getInstance().unregisterDatabaseListener(instanceDatabaseListener);
+        customEnchants.clear();
+        try{
+            discordManager.EndBot();
+        }catch(Exception e){
+
+        }
+        try{
+            timeVoter.Disable();
+        }catch(Exception e){
+
+        }
+        try{
+            ModerrkowoDatabase.getInstance().unregisterDatabaseListener(instanceDatabaseListener);
+        }catch(Exception e){
+
+        }
         try {
             dataConfig.save(dataFile);
             Logger.logAdminLog("Zapisano data.yml");
         } catch (IOException e) {
             Logger.logAdminLog("Wystąpił błąd podczas zapisywania data.yml");
         }
-        try {
-            Field byIdField = Enchantment.class.getDeclaredField("byKey");
-            Field byNameField = Enchantment.class.getDeclaredField("byName");
+        for(Enchantment enchantment : customEnchants.values()){
+            try {
+                Field byIdField = Enchantment.class.getDeclaredField("byKey");
+                Field byNameField = Enchantment.class.getDeclaredField("byName");
 
-            byIdField.setAccessible(true);
-            byNameField.setAccessible(true);
+                byIdField.setAccessible(true);
+                byNameField.setAccessible(true);
 
-            HashMap<Integer, Enchantment> byId = (HashMap<Integer, Enchantment>) byIdField.get(null);
-            HashMap<Integer, Enchantment> byName = (HashMap<Integer, Enchantment>) byNameField.get(null);
+                HashMap<Integer, Enchantment> byId = (HashMap<Integer, Enchantment>) byIdField.get(null);
+                HashMap<Integer, Enchantment> byName = (HashMap<Integer, Enchantment>) byNameField.get(null);
 
-            byId.remove(hammerEnchantment.getKey());
-            byName.remove(hammerEnchantment.getName());
-        } catch (Exception ignored) {
+                byId.remove(enchantment.getKey());
+                byName.remove(enchantment.getName());
+            } catch (Exception ignored) {
+
+            }
         }
         if (instanceRynekManager != null) {
             try {
@@ -430,17 +472,16 @@ public final class Main extends JavaPlugin {
                 throwables.printStackTrace();
             }
         }
+        VanishCommand.bossBar.removeAll();
     }
 
     @Contract(pure = true)
     public static Main getInstance() {
         return instance;
     }
-
     public int getBorder(World world) {
         return (int) world.getWorldBorder().getSize();
     }
-
     public static String getServerName() {
         return ColorUtils.color(HexResolver.parseHexString(Main.getInstance().getConfig().getString("servername")));
     }

@@ -65,7 +65,7 @@ public class AntyLogoutManager implements Listener {
         if (!(e.getEntity() instanceof Player)) {
             return;
         }
-        if (e.getEntity().getWorld().getName().equals("world")) {
+        /*if (e.getEntity().getWorld().getName().equals("world")) {
             Date dt = new Date();
             Calendar cal = GregorianCalendar.getInstance();
             cal.setTime(dt);
@@ -85,8 +85,7 @@ public class AntyLogoutManager implements Listener {
                 }
                 return;
             }
-        }
-
+        }*/
         Entity whoWasHit = e.getEntity();
         Random rd = new Random();
 

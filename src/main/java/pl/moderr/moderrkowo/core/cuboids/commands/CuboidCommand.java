@@ -61,6 +61,11 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                                 }
                             }
                             if (cuboid != null) {
+                                if(!cuboid.getOwners().contains(p.getUniqueId())){
+                                    p.sendMessage(Main.getServerName() + ColorUtils.color(" &cNie jesteś właścicielem tego cuboida!"));
+                                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                                    return false;
+                                }
                                 cuboid.getMembers().addPlayer(addPlayer.getUniqueId());
                                 p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);
                                 p.sendTitle(new Title(Main.getServerName(), ColorUtils.color("&aPomyślnie dodano!")));
@@ -103,6 +108,11 @@ public class CuboidCommand implements CommandExecutor, TabExecutor {
                                 }
                             }
                             if (cuboid != null) {
+                                if(!cuboid.getOwners().contains(p.getUniqueId())){
+                                    p.sendMessage(Main.getServerName() + ColorUtils.color(" &cNie jesteś właścicielem tego cuboida!"));
+                                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                                    return false;
+                                }
                                 if (cuboid.getMembers().getUniqueIds().contains(addPlayer.getUniqueId())) {
                                     cuboid.getMembers().removePlayer(addPlayer.getUniqueId());
                                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 1, 1);

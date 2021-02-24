@@ -1,6 +1,17 @@
 package pl.moderr.moderrkowo.core.custom.enchantments;
 
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.BukkitUtil;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -15,16 +26,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
+import pl.moderr.moderrkowo.core.utils.ItemStackUtils;
 import pl.moderr.moderrkowo.core.utils.PowerUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static org.bukkit.Material.*;
 
 public class HammerEnchantment extends Enchantment implements Listener {
 
@@ -39,56 +52,110 @@ public class HammerEnchantment extends Enchantment implements Listener {
             return;
         }
         if(e.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Main.getInstance().hammerEnchantment)){
+            if(e.getPlayer().isSneaking()){
+                return;
+            }
             for(Block b : PowerUtils.getSurroundingBlocks(Objects.requireNonNull(getBlockFace(e.getPlayer())), e.getBlock())){
-                if(b.getType() == e.getBlock().getType()){
-                    b.breakNaturally(e.getPlayer().getInventory().getItemInMainHand());
-                    e.getPlayer().updateInventory();
+                if(b == null){
+                    continue;
+                }
+                ArrayList<Material> stone = new ArrayList<Material>(){
+                    {
+                        add(STONE);
+                        add(DIORITE);
+                        add(ANDESITE);
+                        add(GRANITE);
+                    }
+                };
+                if(b.getType() == e.getBlock().getType() || (stone.contains(b.getType()) && stone.contains(e.getBlock().getType()))){
+                    if(!inRegion(b.getLocation(), e.getPlayer().getUniqueId())){
+                        b.breakNaturally(e.getPlayer().getInventory().getItemInMainHand(), true);
+                        e.getPlayer().updateInventory();
+                    }
                 }
             }
         }
     }
 
-    @EventHandler
-    public void interact(PlayerInteractEvent e){
-        if(e.getItem() != null){
-            if(e.getItem().getItemMeta().hasLore()){
-                if(Objects.requireNonNull(e.getItem().getLore()).contains(ColorUtils.color("&7" + Main.getInstance().hammerEnchantment.getName()))){
-                    if(!e.getItem().containsEnchantment(Main.getInstance().hammerEnchantment)){
-                        e.getItem().addUnsafeEnchantment(Main.getInstance().hammerEnchantment, 1);
-                    }
-                }
+
+    public boolean inRegion(Location loc, UUID uuid) {
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(loc.getWorld()));
+        if (regions == null) {
+            return false;
+        }
+        ApplicableRegionSet set = regions.getApplicableRegions(BukkitAdapter.asBlockVector(loc));
+        for (ProtectedRegion region : set.getRegions()) {
+            if (region.getOwners().contains(uuid) || region.getMembers().contains(uuid)) {
+                return false;
             }
         }
+        return set.size() > 0;
     }
 
     @EventHandler
     public void anvil(PrepareAnvilEvent e){
         ItemStack first = e.getInventory().getFirstItem();
-        ItemStack secound = e.getInventory().getSecondItem();
-        if(first == null || secound == null){
+        ItemStack second = e.getInventory().getSecondItem();
+        if(first == null || second == null){
             return;
         }
-        if(Objects.requireNonNull(e.getInventory().getFirstItem()).getType() == Material.DIAMOND_PICKAXE || e.getInventory().getFirstItem().getType() == Material.NETHERITE_PICKAXE){
+        if(first.getType().equals(Material.WOODEN_PICKAXE) || first.getType().equals(Material.STONE_PICKAXE) || first.getType().equals(Material.IRON_PICKAXE) || first.getType().equals(Material.DIAMOND_PICKAXE) || first.getType().equals(Material.NETHERITE_PICKAXE)){
             if(e.getInventory().getResult() == null) {
-                if (secound.getItemMeta().hasEnchant(Main.getInstance().hammerEnchantment)) {
-                    if (secound.getType() == Material.ENCHANTED_BOOK) {
-                        ItemStack result = first.clone();
-                        result.addUnsafeEnchantment(Main.getInstance().hammerEnchantment, 1);
-                        ItemMeta meta = result.getItemMeta();
-                        ArrayList<String> lore = new ArrayList<>();
-                        if(result.getItemMeta().getLore() != null){
-                            lore = (ArrayList<String>) meta.getLore();
+                if(second.getType().equals(Material.ENCHANTED_BOOK)){
+                    EnchantmentStorageMeta book = (EnchantmentStorageMeta) second.getItemMeta();
+                    if(book.hasStoredEnchant(Main.getInstance().hammerEnchantment)){
+                        e.getInventory().setRepairCost(first.getRepairCost());
+                        ItemStack result = new ItemStack(first.getType(), first.getAmount());
+                        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+                        for(Enchantment ench : first.getEnchantments().keySet()){
+                            enchantments.put(ench, first.getEnchantments().get(ench));
                         }
-                        assert lore != null;
-                        lore.add(ColorUtils.color("&7" + Main.getInstance().hammerEnchantment.getName()));
-                        meta.setLore(lore);
-                        result.setItemMeta(meta);
-                        e.getInventory().setRepairCost(30);
+                        for(Enchantment ench : book.getStoredEnchants().keySet()){
+                            int level = book.getStoredEnchants().get(ench);
+                            if(enchantments.containsKey(ench)) {
+                                if(level == enchantments.get(ench)){
+                                    if(enchantments.get(ench)+1 <= ench.getMaxLevel()){
+                                        enchantments.replace(ench, enchantments.get(ench)+1);
+                                    }
+                                }
+                            }else {
+                                enchantments.put(ench, level);
+                            }
+                        }
+                        for(Enchantment ench : enchantments.keySet()){
+                            int level = enchantments.get(ench);
+                            if(!ench.canEnchantItem(result)){
+                                continue;
+                            }
+                            result = ItemStackUtils.addEnchantment(result, ench, level);
+                            e.getInventory().setRepairCost(e.getInventory().getRepairCost()+(2*level));
+                        }
                         e.setResult(result);
                     }
                 }
             }
         }
+    }
+
+    private static String toRoman(int n) {
+        String[] romanNumerals = { "M",  "CM", "D", "CD", "C", "XC", "L",  "X", "IX", "V", "I" };
+        int[] romanNumeralNums = {  1000, 900, 500,  400 , 100,  90,  50,   10,    9,   5,   1 };
+        String finalRomanNum = "";
+
+        for (int i = 0; i < romanNumeralNums.length; i ++) {
+            int currentNum = n /romanNumeralNums[i];
+            if (currentNum==0) {
+                continue;
+            }
+
+            for (int j = 0; j < currentNum; j++) {
+                finalRomanNum +=romanNumerals[i];
+            }
+
+            n = n%romanNumeralNums[i];
+        }
+        return finalRomanNum;
     }
 
     public static List<Block> getSquare(Location location, int radius) {
@@ -175,5 +242,11 @@ public class HammerEnchantment extends Enchantment implements Listener {
     @Override
     public boolean canEnchantItem(ItemStack item) {
         return item.getType() == Material.DIAMOND_PICKAXE;
+    }
+
+    @NotNull
+    @Override
+    public Component displayName(int level) {
+        return Component.text(getName());
     }
 }

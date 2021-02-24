@@ -1,12 +1,12 @@
 package pl.moderr.moderrkowo.core.listeners;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import pl.moderr.moderrkowo.core.utils.ItemStackUtils;
 
 import java.time.Instant;
 import java.util.IdentityHashMap;
@@ -42,7 +44,14 @@ public class CropBreakListener implements Listener {
             ExperienceOrb orb = null;
             World world = block.getWorld();
             world.spawn(block.getLocation(), ExperienceOrb.class).setExperience(ExpOrbs);
-            autoReplant(player, block);
+            for(ItemStack item : block.getDrops(player.getInventory().getItemInMainHand())){
+                world.dropItemNaturally(block.getLocation(), item);
+            }
+            if(ItemStackUtils.consumeItem(player, 1, getCropSeeds(block))){
+                autoReplant(block);
+            }else{
+                block.setType(Material.AIR);
+            }
             spawnParticles(block.getLocation());
         } else {
             final Instant now = Instant.now();
@@ -75,25 +84,33 @@ public class CropBreakListener implements Listener {
         location.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, location, 10, .5, .5, .5, 0);
     }
 
-    private void autoReplant(Player player, Block block) {
-        block.getDrops(player.getInventory().getItemInMainHand()).forEach(drop -> {
-            switch (drop.getType()) {
-                case WHEAT_SEEDS:
-                case BEETROOT_SEEDS:
-                case CARROTS:
-                case POTATOES:
-                case NETHER_WART:
-                    drop.setAmount(drop.getAmount() - 1);
-                    break;
-            }
 
-            final Location blockLocation = block.getLocation();
-            blockLocation.getWorld().dropItem(blockLocation,drop);
-        });
-
+    private void autoReplant(Block block) {
         block.setType(block.getType());
     }
 
+    private Material getCropSeeds(Block block){
+        if(isNotCrop(block)){
+            return null;
+        }
+        switch (block.getType()){
+            case WHEAT:
+                return Material.WHEAT_SEEDS;
+            case CARROTS:
+                return Material.CARROT;
+            case POTATOES:
+                return Material.POTATO;
+            case BEETROOTS:
+                return Material.BEETROOT_SEEDS;
+            case MELON_STEM:
+                return Material.MELON_SEEDS;
+            case PUMPKIN_STEM:
+                return Material.PUMPKIN_SEEDS;
+            case NETHER_WART:
+                return Material.NETHER_WART;
+        }
+        return null;
+    }
     private boolean isNotCrop(Block block) {
         switch (block.getType()) {
             case WHEAT:

@@ -7,12 +7,18 @@ disable-command: true
 #Discord
 discord-token: "token"
 #motd
-motd-first: "&8[1.16] &e⚔ &6Moderrkowo &e⚔ &8[1.16]"
-motd-secound: "&aTrwają testy"
+motd-first: "&e⚔ &6Moderrkowo &e⚔ &8[1.16]"
+motd-secound: "&atest"
 #SpawnData
-SpawnWorld: "world"
+SpawnWorld: "Spawn"
 SpawnX: 0
 SpawnY: 0
 SpawnZ: 0
 SpawnYaw: 0
 SpawnPitch: 0
+#Overworld
+SpawnTeleportMaterial: "HONEY_BLOCK"
+SpawnTeleportWorld: "world"
+SpawnTeleportX: 0
+SpawnTeleportY: 0
+SpawnTeleportZ: 0
