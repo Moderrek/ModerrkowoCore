@@ -150,6 +150,22 @@ public class VillagerManager implements Listener {
         i.setItemMeta(meta);
         return i;
     }
+    public void loreCheck(ArrayList<String> lore, final int count, final boolean isActiveQuest, final int questProgress, final String itemPrefix, final String suffix ){
+        int value = count;
+        if(isActiveQuest){
+            value = count-questProgress;
+        }
+        boolean hasItem = value <= 0;
+        if(hasItem){
+            String countS = "";
+            if(count != 1){
+                countS = count + "";
+            }
+            lore.add(ColorUtils.color("&a✔ " + itemPrefix + " " + count + " " + suffix));
+        }else{
+            lore.add(ColorUtils.color("&c✘ " +  itemPrefix + " " + value + " " + suffix));
+        }
+    }
     public ItemStack getItemOfQuest(VillagerData villagerData, PlayerVillagerData playerVillagerData, Player player){
         Material mat;
         String name;
@@ -199,50 +215,16 @@ public class VillagerManager implements Listener {
 
             if(qItem instanceof IQuestItemGive){
                 IQuestItemGive questItem = (IQuestItemGive) qItem;
-                int value = questItem.getCount();
-                if(playerVillagerData.isActiveQuest()){
-                    value = questItem.getCount()-playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId());
-                }
-                boolean hasItem = value <= 0;
-                if(hasItem){
-                    String count = "";
-                    if(questItem.getCount() != 1){
-                        count = questItem.getCount() + "";
-                    }
-                    lore.add(ColorUtils.color("&a✔ " + questItem.getQuestItemPrefix() + " " + count + " " + ChatUtil.materialName(questItem.getMaterial())));
-                }else{
-                    lore.add(ColorUtils.color("&c✘ " + questItem.getQuestItemPrefix() + " " + value + " " + ChatUtil.materialName(questItem.getMaterial())));
-                }
+                // TODO
+                loreCheck(lore, questItem.getCount(), playerVillagerData.isActiveQuest(), playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId()), questItem.getQuestItemPrefix(), ChatUtil.materialName(questItem.getMaterial()));
             }
             if(qItem instanceof IQuestItemCraft){
                 IQuestItemCraft questItem = (IQuestItemCraft) qItem;
-                int value = questItem.getCount();
-                if(playerVillagerData.isActiveQuest()){
-                    value = questItem.getCount()-playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId());
-                }
-                boolean hasItem = value <= 0;
-                if(hasItem){
-                    String count = "";
-                    if(questItem.getCount() != 1){
-                        count = questItem.getCount() + "";
-                    }
-                    lore.add(ColorUtils.color("&a✔ " + questItem.getQuestItemPrefix() + " " + count + " " + ChatUtil.materialName(questItem.getMaterial())));
-                }else{
-                    lore.add(ColorUtils.color("&c✘ " + questItem.getQuestItemPrefix() + " " + value + " " + ChatUtil.materialName(questItem.getMaterial())));
-                }
+                loreCheck(lore, questItem.getCount(), playerVillagerData.isActiveQuest(), playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId()), questItem.getQuestItemPrefix(), ChatUtil.materialName(questItem.getMaterial()));
             }
             if(qItem instanceof IQuestItemKill){
                 IQuestItemKill questItem = (IQuestItemKill) qItem;
-                int value = questItem.getCount();
-                if(playerVillagerData.isActiveQuest()){
-                    value = questItem.getCount()-playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId());
-                }
-                boolean hasItem = value <= 0;
-                if(hasItem){
-                    lore.add(ColorUtils.color("&a✔ " + questItem.getQuestItemPrefix() + " " + questItem.getCount() + " " + ChatUtil.materialName(questItem.getEntityType())));
-                }else{
-                    lore.add(ColorUtils.color("&c✘ " + questItem.getQuestItemPrefix() + " " + value + " " + ChatUtil.materialName(questItem.getEntityType())));
-                }
+                loreCheck(lore, questItem.getCount(), playerVillagerData.isActiveQuest(), playerVillagerData.getQuestItemData().get(questItem.getQuestItemDataId()), questItem.getQuestItemPrefix(), ChatUtil.materialName(questItem.getEntityType()));
             }
 
         }
