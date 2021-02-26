@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Ignore;
 import pl.moderr.moderrkowo.core.commands.admin.*;
 import pl.moderr.moderrkowo.core.commands.user.BadgeCommand;
 import pl.moderr.moderrkowo.core.commands.user.information.*;
@@ -81,16 +82,54 @@ public final class Main extends JavaPlugin {
     // Files
     public File dataFile = new File(getDataFolder(), "data.yml");
     public FileConfiguration dataConfig;
+    // Commands
+    public BadgeCommand badgeCommand;
 
     @Override
     public void onEnable() {
-        // START
+        // Start
         long start = System.currentTimeMillis();
         Logger.logPluginMessage("Wczytywanie wtyczki Main");
-
         // Constructor
         instance = this;
+        // Load configuration file
+        LoadPluginConfig();
+        // Load custom enchantments
+        LoadEnchantments();
+        // Load custom items and drop
+        banknot = new WithdrawCommand();
+        shulkerDropBox = new ShulkerDropBox();
+        // Load asynchronous listeners and commands
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            LoadListeners();
+            LoadCommands();
+        });
+        // Start random auto message
+        StartAutoMessage();
+        // Load world
+        LoadWorlds();
+        // Load data.yml
+        LoadDataYML();
+        // Start cuboids system
+        StartCuboids();
+        // Start custom events
+        StartEvents();
+        // Start villager quest and shop system
+        StartVillagers();
+        // Start discord gate
+        StartDiscordBot();
+        // Enables scoreboard for all players
+        StartScoreboard();
+        // Start rynek
+        StartRynek();
+        // Start time voter
+        StartTimeVoter();
+        // Finish
+        Logger.logPluginMessage("Wczytano plugin [CORE] w &8(&a" + (System.currentTimeMillis() - start) + "ms&8)");
+        Logger.logPluginMessage("Wczytano wersję pluginu 2.0");
+    }
 
+    private void LoadPluginConfig() {
         //<editor-fold> Config
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
@@ -98,7 +137,8 @@ public final class Main extends JavaPlugin {
         saveConfig();
         Logger.logPluginMessage("Wczytano config");
         //</editor-fold> Config
-
+    }
+    private void LoadEnchantments() {
         //<editor-fold> Enchantments
         hammerEnchantment = new HammerEnchantment();
         Bukkit.getPluginManager().registerEvents(hammerEnchantment, this);
@@ -109,37 +149,8 @@ public final class Main extends JavaPlugin {
         loadEnchantments(multihookEnchantment);
         Logger.logPluginMessage("Załadowano " + multihookEnchantment.getName());
         //</editor-fold> Enchantments
-
-        banknot = new WithdrawCommand();
-        shulkerDropBox = new ShulkerDropBox();
-        // Load Async Listeners and Commands
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-
-        //<editor-fold> Listeners
-        try {
-            instanceDatabaseListener = new DatabaseListener();
-            ModerrkowoDatabase.getInstance().registerDatabaseListener(instanceDatabaseListener);
-        } catch (Exception ignored) { }
-        Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(), this);
-        Bukkit.getPluginManager().registerEvents(new ChatListener(), this);
-        Bukkit.getPluginManager().registerEvents(new MotdListener(), this);
-        Bukkit.getPluginManager().registerEvents(new JoinQuitListener(), this);
-        Bukkit.getPluginManager().registerEvents(new CropBreakListener(), this);
-        Bukkit.getPluginManager().registerEvents(new VillagerCommand(), this);
-        Bukkit.getPluginManager().registerEvents(new PogodaCommand(), this);
-        Bukkit.getPluginManager().registerEvents(new RespawnListener(), this);
-        Bukkit.getPluginManager().registerEvents(new TNTListener(), this);
-        instanceAntyLogout = new AntyLogoutManager();
-        Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
-        Bukkit.getPluginManager().registerEvents(new FishListener(), this);
-        Bukkit.getPluginManager().registerEvents(new PaySign(), this);
-        BadgeCommand badgeCommand = new BadgeCommand();
-        Bukkit.getPluginManager().registerEvents(badgeCommand, this);
-        Bukkit.getPluginManager().registerEvents(banknot, this);
-        Bukkit.getPluginManager().registerEvents(new FireballManager(), this);
-        Logger.logPluginMessage("Wczytano listeners");
-        //</editor-fold> Listeners
-
+    }
+    private void LoadCommands() {
         //<editor-fold> Commands
         Objects.requireNonNull(getCommand("alogi")).setExecutor(new ALogiCommand());
         Objects.requireNonNull(getCommand("ahelpop")).setExecutor(new AHelpopCommand());
@@ -186,8 +197,8 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("aenchant")).setExecutor(new AEnchantment());
         Logger.logPluginMessage("Wczytano komendy");
         //</editor-fold> Commands
-        });
-
+    }
+    private void StartAutoMessage() {
         //<editor-fold> AutoMessage
         ArrayList<String> message = new ArrayList<>();
         /*message.add("&cPamiętajcie że to 2 dniowy okres testowy)");
@@ -208,9 +219,14 @@ public final class Main extends JavaPlugin {
         }, 0, 20 * 60 * 2);
         Logger.logPluginMessage("Wczytano AutoMessage");
         //</editor-fold> AutoMessage
-
+    }
+    private void LoadWorlds() {
+        LoadSpawn();
+    }
+    private void LoadSpawn() {
         spawn = new SpawnManager(this);
-
+    }
+    private void LoadDataYML() {
         //<editor-fold> Data.yml
         if (!dataFile.exists()) {
             saveResource("data.yml", false);
@@ -219,31 +235,50 @@ public final class Main extends JavaPlugin {
         dataConfig = YamlConfiguration.loadConfiguration(dataFile);
         Logger.logPluginMessage("Wczytano rekord graczy");
         //</editor-fold> Data.yml
-
+    }
+    private void StartCuboids() {
         //<editor-fold> Cuboids
         instanceCuboids = new CuboidsManager();
         instanceCuboids.Start();
         Logger.logPluginMessage("Wczytano działki");
         //</editor-fold> Cuboids
-
+    }
+    private void StartEvents() {
+        StartDrop();
+    }
+    private void StartDrop() {
         //<editor-fold> EventDrop
         dropEvent = new DropEvent();
         Logger.logPluginMessage("Wczytano event DROP");
         //</editor-fold> EventDrop
-
-       villagerManager = new VillagerManager();
-       Logger.logPluginMessage("Wczytano villagerów");
-
-       discordManager = new DiscordManager();
-       // Start Async Bot
-       Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-           try {
-               discordManager.StartBot();
-           } catch (LoginException e) {
-               e.printStackTrace();
-           }
-       });
-
+    }
+    private void StartVillagers() {
+        villagerManager = new VillagerManager();
+        Logger.logPluginMessage("Wczytano villagerów");
+    }
+    private void StartDiscordBot() {
+        discordManager = new DiscordManager();
+        // Start Async Bot
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            try {
+                discordManager.StartBot();
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+    private void StartRynek() {
+        //<editor-fold> Rynek
+        instanceRynekManager = new RynekManager();
+        Bukkit.getPluginManager().registerEvents(instanceRynekManager, this);
+        Objects.requireNonNull(getCommand("rynek")).setExecutor(new RynekCommand());
+        Logger.logPluginMessage("Wczytano rynek");
+        //</editor-fold> Rynek
+    }
+    private void StartTimeVoter() {
+        timeVoter = new TimeVoter();
+    }
+    private void StartScoreboard() {
         //<editor-fold> Scoreboard
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (User user : ModerrkowoDatabase.getInstance().getUserManager().getAllUsers()) {
@@ -372,18 +407,32 @@ public final class Main extends JavaPlugin {
         }, 0, 20 * 15);
         Logger.logPluginMessage("Wczytano scoreboard");
         //</editor-fold> Scoreboard
-
-        //<editor-fold> Rynek
-        instanceRynekManager = new RynekManager();
-        Bukkit.getPluginManager().registerEvents(instanceRynekManager, this);
-        Objects.requireNonNull(getCommand("rynek")).setExecutor(new RynekCommand());
-        Logger.logPluginMessage("Wczytano rynek");
-        //</editor-fold> Rynek
-
-        timeVoter = new TimeVoter();
-        Logger.logPluginMessage("Wczytano plugin [CORE] w &8(&a" + (System.currentTimeMillis() - start) + "ms&8)");
-        Logger.logPluginMessage("Wczytano wersję pluginu 2.0");
-        // END
+    }
+    private void LoadListeners() {
+        //<editor-fold> Listeners
+        try {
+            instanceDatabaseListener = new DatabaseListener();
+            ModerrkowoDatabase.getInstance().registerDatabaseListener(instanceDatabaseListener);
+        } catch (Exception ignored) { }
+        Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ChatListener(), this);
+        Bukkit.getPluginManager().registerEvents(new MotdListener(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinQuitListener(), this);
+        Bukkit.getPluginManager().registerEvents(new CropBreakListener(), this);
+        Bukkit.getPluginManager().registerEvents(new VillagerCommand(), this);
+        Bukkit.getPluginManager().registerEvents(new PogodaCommand(), this);
+        Bukkit.getPluginManager().registerEvents(new RespawnListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TNTListener(), this);
+        instanceAntyLogout = new AntyLogoutManager();
+        Bukkit.getPluginManager().registerEvents(instanceAntyLogout, this);
+        Bukkit.getPluginManager().registerEvents(new FishListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PaySign(), this);
+        badgeCommand = new BadgeCommand();
+        Bukkit.getPluginManager().registerEvents(badgeCommand, this);
+        Bukkit.getPluginManager().registerEvents(banknot, this);
+        Bukkit.getPluginManager().registerEvents(new FireballManager(), this);
+        Logger.logPluginMessage("Wczytano listeners");
+        //</editor-fold> Listeners
     }
 
     public static void loadEnchantments(Enchantment enchantment) {
@@ -406,8 +455,7 @@ public final class Main extends JavaPlugin {
         }
     }
 
-    @Contract(pure = true)
-    public @NotNull String getTicksToTime(int minutes){
+    public String getTicksToTime(int minutes){
         if(minutes > 20*60){
             if(minutes > 20*60*60){
                 DecimalFormat df2 = new DecimalFormat("#.##");
@@ -427,19 +475,24 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         customEnchants.clear();
+        TryDisable();
+        VanishCommand.bossBar.removeAll();
+    }
+
+    private void TryDisable() {
         try{
             discordManager.EndBot();
-        }catch(Exception e){
+        }catch(Exception ignored){
 
         }
         try{
             timeVoter.Disable();
-        }catch(Exception e){
+        }catch(Exception ignored){
 
         }
         try{
             ModerrkowoDatabase.getInstance().unregisterDatabaseListener(instanceDatabaseListener);
-        }catch(Exception e){
+        }catch(Exception ignored){
 
         }
         try {
@@ -472,10 +525,8 @@ public final class Main extends JavaPlugin {
                 throwables.printStackTrace();
             }
         }
-        VanishCommand.bossBar.removeAll();
     }
 
-    @Contract(pure = true)
     public static Main getInstance() {
         return instance;
     }
