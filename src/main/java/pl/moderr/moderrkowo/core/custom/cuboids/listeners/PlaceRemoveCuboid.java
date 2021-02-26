@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.cuboids.listeners;
+package pl.moderr.moderrkowo.core.custom.cuboids.listeners;
 
 import com.destroystokyo.paper.Title;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -18,7 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
+import pl.moderr.moderrkowo.core.custom.cuboids.CuboidsManager;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 

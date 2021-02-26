@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.listeners.JoinQuitListener;
+import pl.moderr.moderrkowo.core.custom.listeners.JoinQuitListener;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 

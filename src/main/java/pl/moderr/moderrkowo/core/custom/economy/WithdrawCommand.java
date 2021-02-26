@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.economy;
+package pl.moderr.moderrkowo.core.custom.economy;
 
 import com.destroystokyo.paper.Title;
 import org.bukkit.Material;

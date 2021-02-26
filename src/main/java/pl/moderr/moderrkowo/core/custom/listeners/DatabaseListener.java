@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.listeners;
+package pl.moderr.moderrkowo.core.custom.listeners;
 
 import net.agentlv.namemanager.api.NameManagerAPI;
 import org.bukkit.Bukkit;

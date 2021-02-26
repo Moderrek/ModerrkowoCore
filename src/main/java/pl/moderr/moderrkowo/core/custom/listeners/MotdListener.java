@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.listeners;
+package pl.moderr.moderrkowo.core.custom.listeners;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.EventHandler;

@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.listeners;
+package pl.moderr.moderrkowo.core.custom.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

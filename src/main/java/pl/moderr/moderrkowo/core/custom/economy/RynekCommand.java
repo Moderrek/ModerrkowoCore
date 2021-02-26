@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.economy;
+package pl.moderr.moderrkowo.core.custom.economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

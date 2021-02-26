@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.economy;
+package pl.moderr.moderrkowo.core.custom.economy;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;

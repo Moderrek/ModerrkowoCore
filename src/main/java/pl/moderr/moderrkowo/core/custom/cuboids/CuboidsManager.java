@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.cuboids;
+package pl.moderr.moderrkowo.core.custom.cuboids;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,8 +8,8 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.cuboids.commands.CuboidCommand;
-import pl.moderr.moderrkowo.core.cuboids.listeners.PlaceRemoveCuboid;
+import pl.moderr.moderrkowo.core.custom.cuboids.commands.CuboidCommand;
+import pl.moderr.moderrkowo.core.custom.cuboids.listeners.PlaceRemoveCuboid;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 import pl.moderr.moderrkowo.core.utils.ModerrkowoLog;
 

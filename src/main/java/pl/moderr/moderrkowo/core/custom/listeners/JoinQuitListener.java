@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.listeners;
+package pl.moderr.moderrkowo.core.custom.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

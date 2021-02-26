@@ -1,4 +1,4 @@
-package pl.moderr.moderrkowo.core.cuboids.commands;
+package pl.moderr.moderrkowo.core.custom.cuboids.commands;
 
 import com.destroystokyo.paper.Title;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -16,7 +16,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pl.moderr.moderrkowo.core.Main;
-import pl.moderr.moderrkowo.core.cuboids.CuboidsManager;
+import pl.moderr.moderrkowo.core.custom.cuboids.CuboidsManager;
 import pl.moderr.moderrkowo.core.utils.ColorUtils;
 
 import java.util.ArrayList;
